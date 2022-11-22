@@ -10,18 +10,6 @@ int target_base = 0;
 int in_decimal = 0;
 int in_target = 0;
 
-void reverse(void)
-{
-  char c;
-  if ((c = getchar()) != '\n')
-  {
-    reverse();
-    sum += (c - '0') * pow(2, i);
-    i++;
-  }
-  return;
-}
-
 void to_decimal(void)
 {
   char c;
@@ -97,26 +85,14 @@ void to_target(void)
   return;
 }
 
-void set_source(void)
+void set_base(int *base)
 {
   char c;
   if ((c = getchar()) != '\n')
   {
-    set_source();
-    source_base += (c - '0') * pow(10, i);
-    i++;
-  }
-  return;
-}
-
-void set_target(void)
-{
-  char c;
-  if ((c = getchar()) != '\n')
-  {
-    set_target();
-    target_base += (c - '0') * pow(10, i);
-    i++;
+    set_base(base);
+    *base += (int)((c - '0') * pow(10, i));
+    i++;  
   }
   return;
 }
@@ -124,30 +100,30 @@ void set_target(void)
 int main(void)
 {
   printf("Enter the source base:\n");
-  set_source();
+  set_base(&source_base);
   while (source_base < 2 || source_base > 16) {
+    printf("%d", source_base);
     printf("Invalid source base!\n");
     source_base = 0;
     i = 0;
     printf("Enter the source base:\n");
-    set_source();
+    set_base(&source_base);
   }
   printf("The source base is: %d\n", source_base);
   i = 0;
   printf("Enter the target base:\n");
-  set_target();
+  set_base(&target_base);
   while (target_base < 2 || target_base > 16) {
     printf("Invalid target base!\n");
     target_base = 0;
     i = 0;
     printf("Enter the target base:\n");
-    set_target();
+    set_base(&target_base);
   }
   printf("The target base is: %d\n", target_base);
   i = 0;
   printf("Enter a number in base %d\n", source_base);
   to_decimal();
-  /*printf("The entered number in base 10 is: %d\n", in_decimal);*/
   i = 0;
   printf("The entered number in base %d is: ", target_base);
   to_target();
