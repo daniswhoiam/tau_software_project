@@ -2,7 +2,6 @@
 #include <math.h>
 
 int i = 0;
-int sum = 0;
 
 int source_base = 0;
 int target_base = 0;
@@ -10,23 +9,36 @@ int target_base = 0;
 int in_decimal = 0;
 int in_target = 0;
 
-void to_decimal(void)
+int to_decimal(void)
 {
   char c;
+  int translated;
+  int input_legit = 1;
   if ((c = getchar()) != '\n')
   {
-    to_decimal();
+    input_legit = to_decimal();
     if (c < 58)
     {
-      in_decimal += (c - '0') * pow(source_base, i);
+      translated = c - '0';
+      in_decimal += translated * pow(source_base, i);
     }
     else if (c > 96)
     {
-      in_decimal += (c - 'W') * pow(source_base, i);
+      translated = c - 'W';
+      in_decimal += translated * pow(source_base, i);
     }
+
+    /* INPUT VALIDATION */
+    if (translated > source_base - 1 || input_legit == 0)
+    {
+      input_legit = 0;
+      in_decimal = 0;
+      return 0;
+    }
+
     i++;
   }
-  return;
+  return input_legit;
 }
 
 void to_target(void)
@@ -92,7 +104,7 @@ void set_base(int *base)
   {
     set_base(base);
     *base += (int)((c - '0') * pow(10, i));
-    i++;  
+    i++;
   }
   return;
 }
@@ -101,7 +113,8 @@ int main(void)
 {
   printf("Enter the source base:\n");
   set_base(&source_base);
-  while (source_base < 2 || source_base > 16) {
+  while (source_base < 2 || source_base > 16)
+  {
     printf("%d", source_base);
     printf("Invalid source base!\n");
     source_base = 0;
@@ -113,7 +126,8 @@ int main(void)
   i = 0;
   printf("Enter the target base:\n");
   set_base(&target_base);
-  while (target_base < 2 || target_base > 16) {
+  while (target_base < 2 || target_base > 16)
+  {
     printf("Invalid target base!\n");
     target_base = 0;
     i = 0;
@@ -123,7 +137,12 @@ int main(void)
   printf("The target base is: %d\n", target_base);
   i = 0;
   printf("Enter a number in base %d\n", source_base);
-  to_decimal();
+  while (!to_decimal())
+  {
+    printf("Invalid input number!\n");
+    i = 0;
+    printf("Enter a number in base %d\n", source_base);
+  }
   i = 0;
   printf("The entered number in base %d is: ", target_base);
   to_target();
