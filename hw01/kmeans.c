@@ -10,7 +10,7 @@ int main(int argc, char **argv)
   long iter;
   int N;
   FILE *textfile;
-  char line[32];
+  double d1, d2, d3;
  /* Import and check number of data points*/
 
   /* Validate Input */
@@ -26,9 +26,11 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  while(fgets(line, 32, textfile)) {
-    printf("%s\n", line);
-    N++;
+  fscanf(textfile, "%lf,%lf,%lf\n", &d1, &d2, &d3);
+  while(!feof (textfile)) {
+    printf("%f,%f,%f\n", d1, d2, d3);
+    fscanf(textfile, "%lf,%lf,%lf\n", &d1, &d2, &d3);
+    N = N + 3;
   }
   fclose(textfile);
 
