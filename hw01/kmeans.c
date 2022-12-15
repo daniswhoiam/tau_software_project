@@ -132,6 +132,11 @@ int main(int argc, char **argv)
   {
     arr_rel[k] = rel + 2 * k;
   }
+
+  /* LOOP THE NEXT TWO STEPS*/
+
+  /* Assign data points to nearest cluster */
+
   for (i = 0; i < r; i++)
   {
     double diff = 999.00;
@@ -160,11 +165,29 @@ int main(int argc, char **argv)
     arr_rel[i][1] = arr_c[cent];
   }
 
-  /* LOOP THE NEXT TWO STEPS*/
-
-  /* Assign data points to nearest cluster */
-
-  /* Re-initialize centroids */
+  /* Update centroids */
+  for (k = 0; k < K; k++)
+  {
+    double *sum = calloc(c, sizeof(double));
+    int k_count;
+    for (i = 0; i < r; i++)
+    {
+      if (arr_rel[i][1] == arr_c[k])
+      {
+        for (j = 0; j < c; j++)
+        {
+          sum[j] += arr_rel[i][0][j];
+        }
+        k_count++;
+      }
+    }
+    for (j = 0; j < c; j++)
+    {
+      sum[j] = sum[j] / k_count;
+      arr_c[k][j] = sum[j];
+    }
+    free(sum);
+  }
 
   /* Print out Result */
 
