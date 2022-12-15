@@ -17,8 +17,7 @@ int main(int argc, char **argv)
 
   /* For centroids */
   double *p_c, **arr_c;
-
-  /* Import and check number of data points*/
+  double **rel, ***arr_rel;
 
   /* Validate Input */
   if (argc < 3 || argc > 4)
@@ -33,6 +32,8 @@ int main(int argc, char **argv)
     printf("An error has occured.\n");
     return 1;
   }
+
+  /* Import Input */
 
   /*Read first row, determine column number*/
   while (fgets(line, sizeof(line), textfile))
@@ -124,6 +125,41 @@ int main(int argc, char **argv)
     }
   }
 
+  /* Initiate centroid - point arrays*/
+  rel = calloc(2 * count, sizeof(double *));
+  arr_rel = calloc(count, sizeof(double **));
+  for (k = 0; k < count; k++)
+  {
+    arr_rel[k] = rel + 2 * k;
+  }
+  for (i = 0; i < r; i++)
+  {
+    double diff = 999.00;
+    int cent;
+    /* Iterate over centroids*/
+    for (k = 0; k < K; k++)
+    {
+      if (i != k)
+      {
+        double inter_sum;
+        double inter_diff;
+        for (j = 0; j < c; j++)
+        {
+          inter_sum += pow((arr[i][j] - arr_c[k][j]), 2.0);
+        }
+        inter_diff = sqrt(inter_sum);
+        /* Save difference and nearest centroid*/
+        if (inter_diff < diff)
+        {
+          diff = inter_diff;
+          cent = k;
+        }
+      }
+    }
+    arr_rel[i][0] = arr[i];
+    arr_rel[i][1] = arr_c[cent];
+  }
+
   /* LOOP THE NEXT TWO STEPS*/
 
   /* Assign data points to nearest cluster */
@@ -136,6 +172,8 @@ int main(int argc, char **argv)
   free(arr);
   free(p_c);
   free(arr_c);
+  free(rel);
+  free(arr_rel);
 
   return 0;
 }
