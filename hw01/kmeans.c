@@ -15,6 +15,9 @@ int main(int argc, char **argv)
   int i = 0, j = 0, k;
   char line[256];
 
+  /* For centroids */
+  double *p_c, **arr_c;
+
   /* Import and check number of data points*/
 
   /* Validate Input */
@@ -39,19 +42,11 @@ int main(int argc, char **argv)
     int n;
     while (sscanf(l, "%lf,%n", &temp, &n) == 1)
     {
-      /*
-      printf("%f\n", temp);
-      p[count] = temp;
-      p = realloc(p, (count + 2) * sizeof(double));
-      */
       if (r == 1)
         c++;
       l += n;
       count++;
     }
-    /*
-    arr[r] = arr[r - 1] + c * sizeof(double);
-    */
     r++;
   }
   r = r - 1;
@@ -90,8 +85,6 @@ int main(int argc, char **argv)
   }
 
   fclose(textfile);
-  free(p);
-  free(arr);
 
   /* Set number of clusters */
   K = strtol(argv[1], NULL, 10);
@@ -117,6 +110,19 @@ int main(int argc, char **argv)
   }
 
   /* Initialize centroids */
+  p_c = calloc(K * c, sizeof(double));
+  arr_c = calloc(K, sizeof(double *));
+  for (k = 0; k < K; k++)
+  {
+    arr_c[k] = p_c + k * c;
+  }
+  for (i = 0; i < K; i++)
+  {
+    for (j = 0; j < c; j++)
+    {
+      arr_c[i][j] = arr[i][j];
+    }
+  }
 
   /* LOOP THE NEXT TWO STEPS*/
 
@@ -125,6 +131,11 @@ int main(int argc, char **argv)
   /* Re-initialize centroids */
 
   /* Print out Result */
+
+  free(p);
+  free(arr);
+  free(p_c);
+  free(arr_c);
 
   return 0;
 }
