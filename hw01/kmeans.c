@@ -7,6 +7,7 @@ int main(int argc, char **argv)
   long K;
   long iter;
   FILE *textfile;
+  char *filename;
 
   /* For numbers import*/
   int r = 1, c = 1;
@@ -27,14 +28,21 @@ int main(int argc, char **argv)
   double *new_centroid;
   double *centroid_sum;
 
-  /* Validate Input */
+  /* Validate number of args */
   if (argc < 3 || argc > 4)
   {
     printf("Wrong number of arguments!");
     return 1;
   }
 
-  textfile = fopen("./input_1.txt", "r");
+  /* Get filename */
+  if (argc == 3) {
+    filename = argv[2];
+  } else {
+    filename = argv[3];
+  }
+
+  textfile = fopen(filename, "r");
   if (textfile == NULL)
   {
     printf("An error has occured.\n");
@@ -71,7 +79,7 @@ int main(int argc, char **argv)
     arr[k] = p + k * c;
   }
 
-  textfile = fopen("./input_1.txt", "r");
+  textfile = fopen(filename, "r");
   if (textfile == NULL)
   {
     printf("An error has occured.\n");
