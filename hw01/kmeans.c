@@ -34,7 +34,7 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  textfile = fopen("./input_0.txt", "r");
+  textfile = fopen("./input_1.txt", "r");
   if (textfile == NULL)
   {
     printf("An error has occured.\n");
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
     arr[k] = p + k * c;
   }
 
-  textfile = fopen("./input_0.txt", "r");
+  textfile = fopen("./input_1.txt", "r");
   if (textfile == NULL)
   {
     printf("An error has occured.\n");
@@ -172,7 +172,7 @@ int main(int argc, char **argv)
           diff = inter_diff;
           cent = k;
         }
-        printf("Step i = %d k = %d, diff = %f, inter_diff = %f, cent = %d", i, k, diff, inter_diff, cent);
+        printf("Step i = %d k = %d, diff = %f, inter_diff = %f, cent = %d\n", i, k, diff, inter_diff, cent);
       }
       arr_rel[i][0] = arr[i];
       arr_rel[i][1] = arr_c[cent];
@@ -183,8 +183,8 @@ int main(int argc, char **argv)
     /* Update centroids */
     for (k = 0; k < K; k++)
     {
-      double centroid_distance;
-      int k_count;
+      double centroid_distance = 0.0;
+      int k_count = 0;
 
       for (j = 0; j < c; j++)
       {
@@ -195,8 +195,8 @@ int main(int argc, char **argv)
       for (i = 0; i < r; i++)
       {
         printf("Same pointer: %d\n", arr_rel[i][1] == arr_c[k]);
-        printf("Arr_rel: %p", (void *)arr_rel[i][1]);
-        printf("Arr_c: %p", (void *)arr_c[k]);
+        printf("Arr_rel: %p\n", (void *)arr_rel[i][1]);
+        printf("Arr_c: %p\n", (void *)arr_c[k]);
         if (arr_rel[i][1] == arr_c[k])
         {
           for (j = 0; j < c; j++)
@@ -230,12 +230,25 @@ int main(int argc, char **argv)
         treshold_reached = 0;
       }
       printf("%f\n", centroid_distance);
+      for (j = 0; j < c; j++)
+      {
+        centroid_sum[j] = 0.0;
+      }
     }
     iteration_number++;
-    printf("Iter: %d", iteration_number);
+    printf("Iter: %d\n", iteration_number);
   }
 
   /* Print out Result */
+  printf("Final Centroids:\n");
+  for (k = 0; k < K; k++)
+  {
+    for (j = 0; j < c; j++)
+    {
+      printf("%f, ", arr_c[k][j]);
+    }
+    printf("\n");
+  }
 
   free(p);
   free(arr);
