@@ -155,7 +155,6 @@ int main(int argc, char **argv)
     {
       double diff = 999.00;
       int cent = 0;
-      printf("Pre-k: i = %d, diff = %f\n", i, diff);
       /* Iterate over centroids*/
       for (k = 0; k < K; k++)
       {
@@ -172,12 +171,9 @@ int main(int argc, char **argv)
           diff = inter_diff;
           cent = k;
         }
-        printf("Step i = %d k = %d, diff = %f, inter_diff = %f, cent = %d\n", i, k, diff, inter_diff, cent);
       }
       arr_rel[i][0] = arr[i];
       arr_rel[i][1] = arr_c[cent];
-      printf("Arr_rel pointer zu c: %p\n", (void *)arr_rel[i][1]);
-      printf("Arr_c address: %p, Cent: %d\n", (void *)arr_c[cent], cent);
     }
 
     /* Update centroids */
@@ -189,14 +185,10 @@ int main(int argc, char **argv)
       for (j = 0; j < c; j++)
       {
         prev_centroid[j] = arr_c[k][j];
-        printf("Prev %d : %f\n", j, prev_centroid[j]);
       }
 
       for (i = 0; i < r; i++)
       {
-        printf("Same pointer: %d\n", arr_rel[i][1] == arr_c[k]);
-        printf("Arr_rel: %p\n", (void *)arr_rel[i][1]);
-        printf("Arr_c: %p\n", (void *)arr_c[k]);
         if (arr_rel[i][1] == arr_c[k])
         {
           for (j = 0; j < c; j++)
@@ -216,7 +208,6 @@ int main(int argc, char **argv)
       for (j = 0; j < c; j++)
       {
         new_centroid[j] = arr_c[k][j];
-        printf("New %d : %f\n", j, new_centroid[j]);
       }
 
       for (j = 0; j < c; j++)
@@ -224,28 +215,24 @@ int main(int argc, char **argv)
         centroid_distance += pow((prev_centroid[j] - new_centroid[j]), 2);
       }
       centroid_distance = sqrt(centroid_distance);
-      printf("Centroid Distance: %f\n", centroid_distance);
       if (centroid_distance > epsilon)
       {
         treshold_reached = 0;
       }
-      printf("%f\n", centroid_distance);
       for (j = 0; j < c; j++)
       {
         centroid_sum[j] = 0.0;
       }
     }
     iteration_number++;
-    printf("Iter: %d\n", iteration_number);
   }
 
   /* Print out Result */
-  printf("Final Centroids:\n");
   for (k = 0; k < K; k++)
   {
     for (j = 0; j < c; j++)
     {
-      printf("%f, ", arr_c[k][j]);
+      printf("%.4f, ", arr_c[k][j]);
     }
     printf("\n");
   }
