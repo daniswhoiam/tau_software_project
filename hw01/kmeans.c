@@ -19,6 +19,14 @@ int main(int argc, char **argv)
   double *p_c, **arr_c;
   double **rel, ***arr_rel;
 
+  /* For loop */
+  int iteration_number = 0;
+  double epsilon = 0.001;
+  int treshold_reached = 0;
+  double *prev_centroid;
+  double *new_centroid;
+  double *centroid_sum;
+
   /* Validate Input */
   if (argc < 3 || argc > 4)
   {
@@ -26,7 +34,7 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  textfile = fopen("./input_1.txt", "r");
+  textfile = fopen("./input_0.txt", "r");
   if (textfile == NULL)
   {
     printf("An error has occured.\n");
@@ -63,7 +71,7 @@ int main(int argc, char **argv)
     arr[k] = p + k * c;
   }
 
-  textfile = fopen("./input_1.txt", "r");
+  textfile = fopen("./input_0.txt", "r");
   if (textfile == NULL)
   {
     printf("An error has occured.\n");
@@ -88,7 +96,7 @@ int main(int argc, char **argv)
   fclose(textfile);
 
   /* Set number of clusters */
-  K = strtol(argv[1], NULL, 10);
+  K = (int)strtol(argv[1], NULL, 10);
   if (K < 2 || K > (count - 1))
   {
     printf("Invalid number of clusters!");
@@ -133,21 +141,26 @@ int main(int argc, char **argv)
     arr_rel[k] = rel + 2 * k;
   }
 
+  prev_centroid = calloc(c, sizeof(double));
+  new_centroid = calloc(c, sizeof(double));
+  centroid_sum = calloc(c, sizeof(double));
   /* LOOP THE NEXT TWO STEPS*/
-
-  /* Assign data points to nearest cluster */
-
-  for (i = 0; i < r; i++)
+  while (treshold_reached == 0 && iteration_number < iter)
   {
-    double diff = 999.00;
-    int cent;
-    /* Iterate over centroids*/
-    for (k = 0; k < K; k++)
+    treshold_reached = 1;
+
+    /* Assign data points to nearest cluster */
+
+    for (i = 0; i < r; i++)
     {
-      if (i != k)
+      double diff = 999.00;
+      int cent = 0;
+      printf("Pre-k: i = %d, diff = %f\n", i, diff);
+      /* Iterate over centroids*/
+      for (k = 0; k < K; k++)
       {
-        double inter_sum;
-        double inter_diff;
+        double inter_sum = 0.0;
+        double inter_diff = 0.0;
         for (j = 0; j < c; j++)
         {
           inter_sum += pow((arr[i][j] - arr_c[k][j]), 2.0);
@@ -159,34 +172,67 @@ int main(int argc, char **argv)
           diff = inter_diff;
           cent = k;
         }
+        printf("Step i = %d k = %d, diff = %f, inter_diff = %f, cent = %d", i, k, diff, inter_diff, cent);
       }
+      arr_rel[i][0] = arr[i];
+      arr_rel[i][1] = arr_c[cent];
+      printf("Arr_rel pointer zu c: %p\n", (void *)arr_rel[i][1]);
+      printf("Arr_c address: %p, Cent: %d\n", (void *)arr_c[cent], cent);
     }
-    arr_rel[i][0] = arr[i];
-    arr_rel[i][1] = arr_c[cent];
-  }
 
-  /* Update centroids */
-  for (k = 0; k < K; k++)
-  {
-    double *sum = calloc(c, sizeof(double));
-    int k_count;
-    for (i = 0; i < r; i++)
+    /* Update centroids */
+    for (k = 0; k < K; k++)
     {
-      if (arr_rel[i][1] == arr_c[k])
+      double centroid_distance;
+      int k_count;
+
+      for (j = 0; j < c; j++)
       {
-        for (j = 0; j < c; j++)
-        {
-          sum[j] += arr_rel[i][0][j];
-        }
-        k_count++;
+        prev_centroid[j] = arr_c[k][j];
+        printf("Prev %d : %f\n", j, prev_centroid[j]);
       }
+
+      for (i = 0; i < r; i++)
+      {
+        printf("Same pointer: %d\n", arr_rel[i][1] == arr_c[k]);
+        printf("Arr_rel: %p", (void *)arr_rel[i][1]);
+        printf("Arr_c: %p", (void *)arr_c[k]);
+        if (arr_rel[i][1] == arr_c[k])
+        {
+          for (j = 0; j < c; j++)
+          {
+            /* printf("C_sum[%d] + = %f\n", j, arr_rel[i][0][j]); */
+            centroid_sum[j] += arr_rel[i][0][j];
+          }
+          k_count++;
+        }
+      }
+      for (j = 0; j < c; j++)
+      {
+        centroid_sum[j] = centroid_sum[j] / k_count;
+        arr_c[k][j] = centroid_sum[j];
+      }
+
+      for (j = 0; j < c; j++)
+      {
+        new_centroid[j] = arr_c[k][j];
+        printf("New %d : %f\n", j, new_centroid[j]);
+      }
+
+      for (j = 0; j < c; j++)
+      {
+        centroid_distance += pow((prev_centroid[j] - new_centroid[j]), 2);
+      }
+      centroid_distance = sqrt(centroid_distance);
+      printf("Centroid Distance: %f\n", centroid_distance);
+      if (centroid_distance > epsilon)
+      {
+        treshold_reached = 0;
+      }
+      printf("%f\n", centroid_distance);
     }
-    for (j = 0; j < c; j++)
-    {
-      sum[j] = sum[j] / k_count;
-      arr_c[k][j] = sum[j];
-    }
-    free(sum);
+    iteration_number++;
+    printf("Iter: %d", iteration_number);
   }
 
   /* Print out Result */
@@ -197,6 +243,9 @@ int main(int argc, char **argv)
   free(arr_c);
   free(rel);
   free(arr_rel);
+  free(centroid_sum);
+  free(prev_centroid);
+  free(new_centroid);
 
   return 0;
 }
