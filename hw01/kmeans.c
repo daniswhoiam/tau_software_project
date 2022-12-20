@@ -36,9 +36,12 @@ int main(int argc, char **argv)
   }
 
   /* Get filename */
-  if (argc == 3) {
+  if (argc == 3)
+  {
     filename = argv[2];
-  } else {
+  }
+  else
+  {
     filename = argv[3];
   }
 
@@ -240,7 +243,14 @@ int main(int argc, char **argv)
   {
     for (j = 0; j < c; j++)
     {
-      printf("%.4f, ", arr_c[k][j]);
+      if (j == (c - 1))
+      {
+        printf("%.4f", arr_c[k][j]);
+      }
+      else
+      {
+        printf("%.4f,", arr_c[k][j]);
+      }
     }
     printf("\n");
   }
