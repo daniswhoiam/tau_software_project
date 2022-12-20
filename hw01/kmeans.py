@@ -57,11 +57,11 @@ if __name__ == "__main__":
         print("Invalid number of clusters!")
         exit()
 
-    if k >= N or k <= 0:
+    if k <= 1 or k >= N:
         print("Invalid number of clusters!")
         exit()
 
-    if max_iter >= 1000 or max_iter <= 0:
+    if max_iter <= 1 or max_iter >= 1000:
         print("Invalid number of iterations!")
         exit()
 
