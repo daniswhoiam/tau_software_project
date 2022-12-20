@@ -13,7 +13,6 @@ def print_neat(centroids):
                 line += f"{value:.4f}"
         print(line)
 
-
 def read_data(path):
     with open(path) as file:
         lines = file.readlines()
@@ -23,13 +22,11 @@ def read_data(path):
     data = [[float(val) for val in coord] for coord in data_str]
     return data
 
-
 def euclid_dist(x, centr):
     dist = 0
     for a, b in zip(x, centr):
         dist = dist + (a - b)**2
     return math.sqrt(dist)
-
 
 if __name__ == "__main__":
 
@@ -60,11 +57,11 @@ if __name__ == "__main__":
         print("Invalid number of clusters!")
         exit()
 
-    if k >= N:
+    if k >= N or k <= 0:
         print("Invalid number of clusters!")
         exit()
 
-    if max_iter >= 1000:
+    if max_iter >= 1000 or max_iter <= 0:
         print("Invalid number of iterations!")
         exit()
 
@@ -76,7 +73,7 @@ if __name__ == "__main__":
     centroids = data[0:k]
 
     # k-means algorithm
-    while (curr_iter < max_iter and epsilon < max_diff):
+    while curr_iter < max_iter and epsilon < max_diff:
         cluster_values = [[] for i in range(k)]
 
         for x in data:
