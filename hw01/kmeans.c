@@ -2,6 +2,18 @@
 #include <math.h>
 #include <stdlib.h>
 
+int isNatNumber(char number[])
+{
+  int i;
+  for (i = 0; number[i] != 0; ++i)
+  {
+    char c = number[i];
+    if (c < 48 || c > 57)
+      return 0;
+  }
+  return 1;
+}
+
 int main(int argc, char **argv)
 {
   long K;
@@ -73,9 +85,7 @@ int main(int argc, char **argv)
   c = c - 1;
   fclose(textfile);
 
-  /*Double Array erstellen (columns)*/
   p = calloc(r * c, sizeof(double));
-  /*Array für double Arrays erstellen (rows)*/
   arr = calloc(r, sizeof(double *));
   for (k = 0; k < r; k++)
   {
@@ -107,20 +117,30 @@ int main(int argc, char **argv)
   fclose(textfile);
 
   /* Set number of clusters */
+  if (isNatNumber(argv[1]) == 0)
+  {
+    printf("Invalid number of clusters!\n");
+    return 1;
+  }
   K = (int)strtol(argv[1], NULL, 10);
   if (K < 2 || K > (count - 1))
   {
-    printf("Invalid number of clusters!");
+    printf("Invalid number of clusters!\n");
     return 1;
   }
 
   /* Set number of iterations */
   if (argc == 4)
   {
+    if (isNatNumber(argv[2]) == 0)
+    {
+      printf("Invalid maximum iteration!\n");
+      return 1;
+    }
     iter = strtol(argv[2], NULL, 10);
     if (iter < 2 || iter > 999)
     {
-      printf("Invalid maximum iteration!");
+      printf("Invalid maximum iteration!\n");
       return 1;
     }
   }
@@ -204,7 +224,6 @@ int main(int argc, char **argv)
         {
           for (j = 0; j < c; j++)
           {
-            /* printf("C_sum[%d] + = %f\n", j, arr_rel[i][0][j]); */
             centroid_sum[j] += arr_rel[i][0][j];
           }
           k_count++;
