@@ -25,10 +25,10 @@ def read_data(path):
 
 
 def euclid_dist(x, centr):
-  dist = 0
-  for a, b in zip(x, centr):
-    dist = dist + (a - b)**2
-  return math.sqrt(dist)
+    dist = 0
+    for a, b in zip(x, centr):
+        dist = dist + (a - b)**2
+    return math.sqrt(dist)
 
 
 if __name__ == "__main__":
@@ -67,9 +67,6 @@ if __name__ == "__main__":
     if max_iter >= 1000:
         print("Invalid number of iterations!")
         exit()
-
-    print(f"k = {k}")
-    print(f"Max iterations = {max_iter}")
 
     epsilon = 0.001
     curr_iter = 0
