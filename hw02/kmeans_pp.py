@@ -11,6 +11,15 @@ def read_data(path):
     data = [[float(val) for val in coord] for coord in data_str]
     return data
 
+def convert(list):
+  res_dict = {}
+  dim = len(list[0])
+  for i in range(0, len(list)-1):
+    sl = slice(1, dim)
+    res_dict[list[i][0]] = list[i][sl]
+  return res_dict
+
+
 if __name__ == "__main__":
 
   arg_num = len(sys.argv)
@@ -25,14 +34,18 @@ if __name__ == "__main__":
   N = len(data_1) # Both files have the same length
 
   # Check number of clusters
-  k = sys.argv[1]
+  k = int(sys.argv[1])
   if k <= 1 or k >= N:
     print("Invalid number of clusters!")
     exit()
 
   # Check number of iterations
-  iter = sys.argv[3] if has_iter else 300 # Default: 300
+  iter = int(sys.argv[2]) if has_iter else 300 # Default: 300
   if iter <= 1 or iter >= 1000:
     print("Invalid number of iteration!")
     exit()
-  
+
+  # Perform inner join
+  dict_1 = convert(data_1)
+  dict_2 = convert(data_2)
+  dict_joined = {k: dict_1[k] + dict_2[k] for k in dict_1 if k in dict_2}
