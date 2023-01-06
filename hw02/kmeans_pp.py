@@ -49,3 +49,6 @@ if __name__ == "__main__":
   dict_1 = convert(data_1)
   dict_2 = convert(data_2)
   dict_joined = {k: dict_1[k] + dict_2[k] for k in dict_1 if k in dict_2}
+
+  # Sort in ascending order
+  dict_sorted = dict(sorted(dict_joined.items()))
