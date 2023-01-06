@@ -1,6 +1,7 @@
 import sys
 import os
 import math
+import numpy as np
 
 def read_data(path):
     with open(path) as file:
@@ -52,3 +53,19 @@ if __name__ == "__main__":
 
   # Sort in ascending order
   dict_sorted = dict(sorted(dict_joined.items()))
+
+  # k-means ++
+  
+  # Choose one center uniformly at random among the data points.
+  np.random.seed(0)
+  print(list(dict_sorted.keys()))
+  rand_center_key = np.random.choice(list(dict_sorted.keys()))
+  rand_center = dict_joined[rand_center_key]
+
+  # For each data point x not chosen yet, compute D(x), the distance between x and the nearest center that has already been chosen.
+
+  # Choose one new data point at random as a new center, using a weighted probability distri- bution where a point x is chosen with probability proportional to P(x1)
+
+  # Repeat Steps 2 and 3 until k centers have been chosen
+
+  # Now that the initial centers have been chosen, proceed using standard k-means clustering.
