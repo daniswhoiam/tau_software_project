@@ -84,8 +84,19 @@ if __name__ == "__main__":
             if inter_dist < dist[key]:
                 dist[key] = inter_dist
 
+    # Calculate probability list
+    dist_sum = sum(dist.values())
+    p_x = []
+    for value in dist.values():
+        proportion = value / dist_sum
+        p_x.append(proportion)
+
     # Choose one new data point at random as a new center, using a weighted probability distri-
     # bution where a point x is chosen with probability proportional to P(x1)
+    rand_center_key = np.random.choice(list(dict_sorted.keys()), p=p_x)
+    rand_center = dict_sorted[rand_center_key]
+    chosen_points.append(rand_center)
+    del dict_sorted(rand_center_key)
 
     # Repeat Steps 2 and 3 until k centers have been chosen
 
