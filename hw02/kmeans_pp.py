@@ -101,3 +101,4 @@ if __name__ == "__main__":
         del dict_sorted[rand_center_key]
 
     # Now that the initial centers have been chosen, proceed using standard k-means clustering.
+    # TODO
