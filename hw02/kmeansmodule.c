@@ -5,17 +5,19 @@
 #include <math.h>
 #include <stdlib.h>
 
-// Need to change this
 static PyObject *
 py_fitter(PyObject *self, PyObject *args)
 {
-  const char *command;
-  int sts;
+  double **data, **centroids = NULL;
+  int K, iter = NULL;
+  double epsilon = 0.0;
 
-  if (!PyArg_ParseTuple(args, "s", &command))
+  if (!PyArg_ParseTuple(args, "00iid", &data, &centroids, &K, &iter, &epsilon))
     return NULL;
-  sts = system(command);
-  return PyLong_FromLong(sts);
+
+  double **final_centroids = fit(data, centroids, K, iter, epsilon);
+
+  return PyLong_FromLong(final_centroids);
 }
 
 // https://towardsdatascience.com/write-your-own-c-extension-to-speed-up-python-x100-626bb9d166e7
@@ -32,6 +34,7 @@ static struct PyModuleDef kmeansmodule = {
 
 PyMODINIT_FUNC PyInit_mykmeanssp(void)
 {
+  import_array();
   return PyModule_Create(&kmeansmodule);
 };
 
@@ -47,7 +50,7 @@ int isNatNumber(char number[])
   return 1;
 }
 
-int fit (double **data, double **centroids, int K, int iter, double epsilon)
+int fit(double **data, double **centroids, int K, int iter, double epsilon)
 {
   /* Dimensions */
   int r, c, count;
