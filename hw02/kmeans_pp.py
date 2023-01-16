@@ -2,6 +2,7 @@ import sys
 import os
 import math
 import numpy as np
+import mykmeanssp
 
 
 def read_data(path):
@@ -55,6 +56,8 @@ if __name__ == "__main__":
         print("Invalid number of iteration!")
         exit()
 
+    epsilon = float(sys.argv[3]) if has_iter else float(sys.argv[2])
+
     # Perform inner join
     dict_1 = convert(data_1)
     dict_2 = convert(data_2)
@@ -100,5 +103,10 @@ if __name__ == "__main__":
         chosen_points.append(rand_center)
         del dict_sorted[rand_center_key]
 
+    # RArray to pass to C function
+    arr_sorted = sorted(dict_joined.items())
+
     # Now that the initial centers have been chosen, proceed using standard k-means clustering.
-    # TODO
+    r = len(arr_sorted)
+    c = len(arr_sorted[0])
+    final_centroids = mykmeanssp.fit(arr_sorted, chosen_points, r, c, k, iter, epsilon)

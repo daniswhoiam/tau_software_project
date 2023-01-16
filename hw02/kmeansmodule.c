@@ -5,55 +5,10 @@
 #include <math.h>
 #include <stdlib.h>
 
-static PyObject *
-py_fitter(PyObject *self, PyObject *args)
-{
-  double **data, **centroids = NULL;
-  int K, iter = NULL;
-  double epsilon = 0.0;
-
-  if (!PyArg_ParseTuple(args, "00iid", &data, &centroids, &K, &iter, &epsilon))
-    return NULL;
-
-  double **final_centroids = fit(data, centroids, K, iter, epsilon);
-
-  return PyLong_FromLong(final_centroids);
-}
-
-// https://towardsdatascience.com/write-your-own-c-extension-to-speed-up-python-x100-626bb9d166e7
-static PyMethodDef KMeansMethods[] = {
-    {"fit", py_fitter, METH_VARARGS, "Function to fit"},
-    {NULL, NULL, 0, NULL}};
-
-static struct PyModuleDef kmeansmodule = {
-    PyModuleDef_HEAD_INIT,
-    "mykmeanssp",
-    "C library for k means algorithm",
-    -1,
-    KMeansMethods};
-
-PyMODINIT_FUNC PyInit_mykmeanssp(void)
-{
-  import_array();
-  return PyModule_Create(&kmeansmodule);
-};
-
-int isNatNumber(char number[])
-{
-  int i;
-  for (i = 0; number[i] != 0; ++i)
-  {
-    char c = number[i];
-    if (c < 48 || c > 57)
-      return 0;
-  }
-  return 1;
-}
-
-int fit(double **data, double **centroids, int K, int iter, double epsilon)
+double **fit(double **data, double **centroids, int r, int c, int K, int iter, double epsilon)
 {
   /* Dimensions */
-  int r, c, count;
+  int count;
 
   /* Iterators */
   int i = 0, j = 0, k = 0;
@@ -69,22 +24,20 @@ int fit(double **data, double **centroids, int K, int iter, double epsilon)
   double *centroid_sum;
 
   /* Calculating Dimensions */
-  c = sizeof(data[0]) / sizeof(data[0][0]);
-  r = sizeof(data) / sizeof(data[0]);
   count = c * r;
 
   /* Set number of clusters */
   if (K < 2 || K > (count - 1))
   {
     printf("Invalid number of clusters!\n");
-    return 1;
+    return NULL;
   }
 
   /* Set number of iterations */
   if (iter < 2 || iter > 999)
   {
     printf("Invalid maximum iteration!\n");
-    return 1;
+    return NULL;
   }
   else
   {
@@ -194,3 +147,78 @@ int fit(double **data, double **centroids, int K, int iter, double epsilon)
 
   return centroids;
 }
+
+static PyObject *
+py_fitter(PyObject *self, PyObject *args)
+{
+  PyObject *data, *centroids;
+  int K, iter, r, c;
+  double epsilon;
+
+  if (!PyArg_ParseTuple(args, "00iiiid", &data, &centroids, &r, &c, &K, &iter, &epsilon))
+    return NULL;
+
+  double **input_data;
+  input_data = calloc(r * c, sizeof(double));
+  int i, j;
+  for (i = 0; i < r; i++)
+  {
+    PyObject *array = PyList_GetItem(data, i);
+    for (j = 0; j < c; j++)
+    {
+      PyObject *item = PyList_GetItem(array, j);
+      double num = PyFloat_AsDouble(item);
+      input_data[i][j] = num;
+    }
+  }
+
+  double **input_centroids;
+  input_centroids = calloc(r * K, sizeof(double));
+  for (i = 0; i < K; i++)
+  {
+    PyObject *array = PyList_GetItem(centroids, i);
+    for (j = 0; j < c; j++)
+    {
+      PyObject *item = PyList_GetItem(array, j);
+      double num = PyFloat_AsDouble(item);
+      input_centroids[i][j] = num;
+    }
+  }
+
+  double **final_centroids = fit(input_data, input_centroids, r, c, K, iter, epsilon);
+
+  PyObject *py_final_centroids;
+  PyObject *py_double_arr;
+  PyObject *py_double;
+  py_final_centroids = PyList_New(K);
+  py_double_arr = PyList_New(c);
+  for (i = 0; i < K; i++)
+  {
+    for (j = 0; j < c; j++)
+    {
+      py_double = PyFloat_FromDouble(final_centroids[i][j]);
+      PyList_SetItem(py_double_arr, j, py_double);
+    }
+    PyList_SetItem(py_final_centroids, i, py_double_arr);
+  }
+
+  return Py_BuildValue("[items]", py_final_centroids);
+}
+
+// https://towardsdatascience.com/write-your-own-c-extension-to-speed-up-python-x100-626bb9d166e7
+static PyMethodDef KMeansMethods[] = {
+    {"fit", py_fitter, METH_VARARGS, "Function to fit"},
+    {NULL, NULL, 0, NULL}};
+
+static struct PyModuleDef kmeansmodule = {
+    PyModuleDef_HEAD_INIT,
+    "mykmeanssp",
+    "C library for k means algorithm",
+    -1,
+    KMeansMethods};
+
+PyMODINIT_FUNC PyInit_mykmeanssp(void)
+{
+  // import_array();
+  return PyModule_Create(&kmeansmodule);
+};

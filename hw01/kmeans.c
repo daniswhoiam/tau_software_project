@@ -96,7 +96,7 @@ int main(int argc, char **argv)
     return 1;
   }
   K = (int)strtol(argv[1], NULL, 10);
-  if (K < 2 || K > (count - 1))
+  if (K < 2 || K >= r)
   {
     printf("Invalid number of clusters!\n");
     return 1;
