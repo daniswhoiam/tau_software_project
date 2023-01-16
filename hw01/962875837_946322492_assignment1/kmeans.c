@@ -18,8 +18,6 @@ int main(int argc, char **argv)
 {
   long K;
   long iter;
-  FILE *textfile;
-  char *filename;
 
   /* For numbers import*/
   int r = 1, c = 1;
@@ -41,33 +39,16 @@ int main(int argc, char **argv)
   double *centroid_sum;
 
   /* Validate number of args */
-  if (argc < 3 || argc > 4)
+  if (argc < 2 || argc > 3)
   {
     printf("Wrong number of arguments!");
-    return 1;
-  }
-
-  /* Get filename */
-  if (argc == 3)
-  {
-    filename = argv[2];
-  }
-  else
-  {
-    filename = argv[3];
-  }
-
-  textfile = fopen(filename, "r");
-  if (textfile == NULL)
-  {
-    printf("An error has occured.\n");
     return 1;
   }
 
   /* Import Input */
 
   /*Read first row, determine column number*/
-  while (fgets(line, sizeof(line), textfile))
+  while (fgets(line, sizeof(line), stdin))
   {
     char *l = line;
     double temp;
@@ -83,7 +64,8 @@ int main(int argc, char **argv)
   }
   r = r - 1;
   c = c - 1;
-  fclose(textfile);
+
+  fseek(stdin, 0, SEEK_SET);
 
   p = calloc(r * c, sizeof(double));
   arr = calloc(r, sizeof(double *));
@@ -92,14 +74,7 @@ int main(int argc, char **argv)
     arr[k] = p + k * c;
   }
 
-  textfile = fopen(filename, "r");
-  if (textfile == NULL)
-  {
-    printf("An error has occured.\n");
-    return 1;
-  }
-
-  while (fgets(line, sizeof(line), textfile))
+  while (fgets(line, sizeof(line), stdin))
   {
     char *l = line;
     double temp;
@@ -114,8 +89,6 @@ int main(int argc, char **argv)
     i++;
   }
 
-  fclose(textfile);
-
   /* Set number of clusters */
   if (isNatNumber(argv[1]) == 0)
   {
@@ -123,14 +96,14 @@ int main(int argc, char **argv)
     return 1;
   }
   K = (int)strtol(argv[1], NULL, 10);
-  if (K < 2 || K > (count - 1))
+  if (K < 2 || K >= r)
   {
     printf("Invalid number of clusters!\n");
     return 1;
   }
 
   /* Set number of iterations */
-  if (argc == 4)
+  if (argc == 3)
   {
     if (isNatNumber(argv[2]) == 0)
     {
