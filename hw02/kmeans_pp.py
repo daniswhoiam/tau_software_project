@@ -3,6 +3,9 @@ import os
 import math
 import numpy as np
 import mykmeanssp
+import faulthandler
+
+faulthandler.enable()
 
 
 def read_data(path):
@@ -104,9 +107,10 @@ if __name__ == "__main__":
         del dict_sorted[rand_center_key]
 
     # RArray to pass to C function
-    arr_sorted = sorted(dict_joined.items())
+    arr_sorted = sorted(dict_joined.values())
 
     # Now that the initial centers have been chosen, proceed using standard k-means clustering.
     r = len(arr_sorted)
     c = len(arr_sorted[0])
     final_centroids = mykmeanssp.fit(arr_sorted, chosen_points, r, c, k, iter, epsilon)
+    print(final_centroids)

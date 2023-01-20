@@ -1,11 +1,9 @@
-#define PY_SSIZE_T_CLEAN
-#include <python3.10/Python.h> // NOT IDEAL, need to find solution
-// https://stackoverflow.com/questions/21530577/fatal-error-python-h-no-such-file-or-directory
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
 
 double **fit(double **data, double **centroids, int r, int c, int K, int iter, double epsilon)
+
 {
   /* Dimensions */
   int count;
@@ -137,100 +135,84 @@ double **fit(double **data, double **centroids, int r, int c, int K, int iter, d
     iteration_number++;
   }
 
+  free(rel);
+  free(arr_rel);
+  free(centroid_sum);
+  free(prev_centroid);
+  free(new_centroid);
+
   return centroids;
 }
 
-static PyObject *
-py_fitter(PyObject *self, PyObject *args)
+int main(void)
 {
-  PyObject *data, *centroids;
-  int K, iter, r, c;
-  double epsilon;
-  int i, j, k;
-  double *input_data;
-  double **arr_input_data;
-  double *input_centroids;
-  double **arr_input_centroids;
-  double **final_centroids;
-  PyObject *py_final_centroids;
-  PyObject *py_double_arr;
-  PyObject *py_double;
+  int k, j;
+  double **as_x, **ac_x, *s_x, *c_x;
+  int r = 4;
+  int c = 3;
+  int K = 2;
+  int iter = 100;
+  double epsilon = 0.001;
+  double **result;
 
-  if (!PyArg_ParseTuple(args, "OOiiiid", &data, &centroids, &r, &c, &K, &iter, &epsilon))
-    return NULL;
+  double sampledata[4][3] = {
+      {2.01, 3.01, 4.01},
+      {1.99, 2.99, 3.99},
+      {10.01, 11.01, 12.01},
+      {11.01, 12.01, 13.01}};
+  double centroids[2][3] = {
+      {1.01, -1.01, 0.00},
+      {9.01, 8.00, 15.01}};
 
-  input_data = calloc(r * c, sizeof(double));
-  arr_input_data = calloc(r, sizeof(double *));
-
+  s_x = calloc(r * c, sizeof(double));
+  as_x = calloc(r, sizeof(double *));
   for (k = 0; k < r; k++)
   {
-    arr_input_data[k] = input_data + k * c;
+    as_x[k] = s_x + k * c;
   }
-  for (i = 0; i < r; i++)
+  for (k = 0; k < r; k++)
   {
-    PyObject *array = PyList_GetItem(data, i);
     for (j = 0; j < c; j++)
     {
-      PyObject *item = PyList_GetItem(array, j);
-      double num = PyFloat_AsDouble(item);
-      arr_input_data[i][j] = num;
+      as_x[k][j] = sampledata[k][j];
     }
   }
 
-  input_centroids = calloc(K * c, sizeof(double));
-  arr_input_centroids = calloc(K, sizeof(double *));
+  c_x = calloc(K * c, sizeof(double));
+  ac_x = calloc(K, sizeof(double *));
   for (k = 0; k < K; k++)
   {
-    arr_input_centroids[k] = input_centroids + k * c;
+    ac_x[k] = c_x + k * c;
   }
-  for (i = 0; i < K; i++)
-  {
-    PyObject *array = PyList_GetItem(centroids, i);
-    for (j = 0; j < c; j++)
-    {
-      PyObject *item = PyList_GetItem(array, j);
-      double num = PyFloat_AsDouble(item);
-      arr_input_centroids[i][j] = num;
-    }
-  }
-
-  final_centroids = calloc(K, sizeof(double *));
-  final_centroids = fit(arr_input_data, arr_input_centroids, r, c, K, iter, epsilon);
-
-  py_final_centroids = PyList_New(K);
-  py_double_arr = PyList_New(c);
-  for (i = 0; i < K; i++)
+  for (k = 0; k < K; k++)
   {
     for (j = 0; j < c; j++)
     {
-      py_double = PyFloat_FromDouble(final_centroids[i][j]);
-      PyList_SetItem(py_double_arr, j, py_double);
+      ac_x[k][j] = centroids[k][j];
     }
-    PyList_SetItem(py_final_centroids, i, py_double_arr);
   }
 
-  if (!py_final_centroids)
-    return NULL;
-  return Py_BuildValue("O", py_final_centroids);
+  result = calloc(c * K, sizeof(double));
+  result = fit(as_x, ac_x, r, c, K, iter, epsilon);
+
+  /* Print out Result */
+  for (k = 0; k < K; k++)
+  {
+    for (j = 0; j < c; j++)
+    {
+      if (j == (c - 1))
+      {
+        printf("%.4f", result[k][j]);
+      }
+      else
+      {
+        printf("%.4f,", result[k][j]);
+      }
+    }
+    printf("\n");
+  }
+
+  free(result);
+
+  return 0;
 }
-
-// https://towardsdatascience.com/write-your-own-c-extension-to-speed-up-python-x100-626bb9d166e7
-static PyMethodDef KMeansMethods[] = {
-    {"fit", (PyCFunction)py_fitter, METH_VARARGS, PyDoc_STR("Function to fit")},
-    {NULL, NULL, 0, NULL}};
-
-static struct PyModuleDef kmeansmodule = {
-    PyModuleDef_HEAD_INIT,
-    "mykmeanssp",
-    "C library for k means algorithm",
-    -1,
-    KMeansMethods};
-
-PyMODINIT_FUNC PyInit_mykmeanssp(void)
-{
-  PyObject *m;
-  m = PyModule_Create(&kmeansmodule);
-  if (!m)
-    return NULL;
-  return m;
-};
