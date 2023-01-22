@@ -198,9 +198,9 @@ py_fitter(PyObject *self, PyObject *args)
   final_centroids = fit(arr_input_data, arr_input_centroids, r, c, K, iter, epsilon);
 
   py_final_centroids = PyList_New(K);
-  py_double_arr = PyList_New(c);
   for (i = 0; i < K; i++)
   {
+    py_double_arr = PyList_New(c);
     for (j = 0; j < c; j++)
     {
       py_double = PyFloat_FromDouble(final_centroids[i][j]);

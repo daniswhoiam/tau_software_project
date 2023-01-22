@@ -75,6 +75,7 @@ if __name__ == "__main__":
     np.random.seed(0)
     rand_center_key = np.random.choice(list(dict_sorted.keys()))
     rand_center = dict_joined[rand_center_key]
+    chosen_point_keys = [rand_center_key]
     chosen_points = [rand_center]
     del dict_sorted[rand_center_key]  # Since chosen, remove from choice pool
 
@@ -104,7 +105,11 @@ if __name__ == "__main__":
         rand_center_key = np.random.choice(list(dict_sorted.keys()), p=p_x)
         rand_center = dict_sorted[rand_center_key]
         chosen_points.append(rand_center)
+        chosen_point_keys.append(rand_center_key)
         del dict_sorted[rand_center_key]
+
+    # https://bobbyhadz.com/blog/python-print-list-separated-by-commas
+    print(",".join(str(int(item)) for item in chosen_point_keys))
 
     # RArray to pass to C function
     arr_sorted = sorted(dict_joined.values())
@@ -113,4 +118,7 @@ if __name__ == "__main__":
     r = len(arr_sorted)
     c = len(arr_sorted[0])
     final_centroids = mykmeanssp.fit(arr_sorted, chosen_points, r, c, k, iter, epsilon)
-    print(final_centroids)
+
+    for centroid in final_centroids:
+        rounded = [round(value, 4) for value in centroid]
+        print(','.join(str(item) for item in rounded))
