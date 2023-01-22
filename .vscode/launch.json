@@ -11,7 +11,7 @@
       "program": "${file}",
       "cwd": "${fileDirname}",
       "console": "integratedTerminal",
-      "args": ["3", "100", "0.01", "input_1_db_1.txt", "input_1_db_2.txt"]
+      "args": ["3", "100", "0.01", "input_2_db_1.txt", "input_2_db_2.txt"]
     },
     {
       "name": "(gdb) Attach",

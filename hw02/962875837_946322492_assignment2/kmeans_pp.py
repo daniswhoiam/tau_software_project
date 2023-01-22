@@ -1,120 +1,116 @@
 import sys
-import os
-import math
 import numpy as np
+import pandas as pd
 import mykmeanssp
 
 
-def read_data(path):
-    with open(path) as file:
-        lines = file.readlines()
-
-    lines = [line.replace("\n", "") for line in lines]
-    data_str = [line.split(",") for line in lines]
-    data = [[float(val) for val in coord] for coord in data_str]
-    return data
+def inds_to_str(inds):
+    str = ""
+    for i in range(inds.shape[0] - 1):
+        str = str + f"{inds[i]:.0f},"
+    return str + f"{inds[-1]:.0f}"
 
 
-def convert(list):
-    res_dict = {}
-    dim = len(list[0])
-    for i in range(0, len(list) - 1):
-        sl = slice(1, dim)
-        res_dict[list[i][0]] = list[i][sl]
-    return res_dict
+def read_data(path1, path2):
+    df1 = pd.read_csv(path1, index_col=0, header=None)  # make the 'observation index' (ie, key) the row label
+    df2 = pd.read_csv(path2, index_col=0, header=None)
+    df = df1.merge(df2, left_index=True, right_index=True)
+    df = df.sort_values(by=[0], axis="index")
+
+    dim = df.shape[1]  # dimensionality of data
+    headers = np.arange(1, dim + 1)
+    df.columns = headers  # give each column its dim as header
+    return df
 
 
-def euclid_dist(x, centr):
-    dist = 0
-    for a, b in zip(x, centr):
-        dist = dist + (a - b) ** 2
-    return math.sqrt(dist)
+def euclid_dist(row, centroid):
+    return np.linalg.norm(row - centroid)
+
+
+# Initializing k centroids for k-means++
+def init_centroids_pp(K, df):
+    indices = np.zeros(K)
+
+    # Initializing first centroid
+    np.random.seed(0)
+    index = np.random.randint(low=0, high=df.shape[0])
+    indices[0] = index
+    centroids = df.iloc[[index]]  # DataFrame to save the centroids
+
+    # Initializing other K-1 centroids
+    for k in range(1, K):
+        # distances, D(x), holds the distance for each point to its closes centroid
+        distances = df.apply(
+            lambda row: min([euclid_dist(row, centroids.iloc[i]) for i in range(centroids.shape[0])]), axis=1
+        )
+        sum = np.sum(distances)
+        distribution = distances.apply(lambda row: row / sum)
+
+        new_index = np.random.choice(a=df.shape[0], p=distribution)  # df.shape[0] = N, so a=np.arange(N)
+        new_centr = df.iloc[[new_index]]  # double brackets means return type is df, not series
+        indices[k] = new_index
+
+        # Update centroids
+        centroids = pd.concat([centroids, new_centr], ignore_index=True)
+
+    return indices, centroids
 
 
 if __name__ == "__main__":
 
-    arg_num = len(sys.argv)
-    # Check number of args
-    if arg_num < 5 or arg_num > 6:
+    # ASSERTIONS ON INPUT
+
+    # 6 arguments, so iter is given but could be invalid
+    if len(sys.argv) == 6:
+        try:
+            max_iter = int(sys.argv[2])
+            epsilon = float(sys.argv[3])
+            df = read_data(sys.argv[4], sys.argv[5])
+        except:
+            print("Invalid maximum iteration!")
+            exit()
+
+    # 5 arguments, so iter is not given
+    elif len(sys.argv) == 5:
+        max_iter = 300
+        epsilon = float(sys.argv[2])
+        df = read_data(sys.argv[3], sys.argv[4])
+
+    else:
         print("Invalid number of arguments!")
         exit()
-    has_iter = arg_num == 6
 
-    data_1 = read_data(os.path.join(os.getcwd(), sys.argv[4] if has_iter else sys.argv[3]))
-    data_2 = read_data(os.path.join(os.getcwd(), sys.argv[5] if has_iter else sys.argv[4]))
-    N = len(data_1)  # Both files have the same length
+    N = df.shape[0]
 
-    # Check number of clusters
-    k = int(sys.argv[1])
-    if k <= 1 or k >= N:
+    # Check if k is an integer
+    try:
+        K = int(sys.argv[1])
+    except:
         print("Invalid number of clusters!")
         exit()
 
-    # Check number of iterations
-    iter = int(sys.argv[2]) if has_iter else 300  # Default: 300
-    if iter <= 1 or iter >= 1000:
+    if K <= 1 or K >= N:
+        print("Invalid number of clusters!")
+        exit()
+
+    if max_iter <= 1 or max_iter >= 1000:
         print("Invalid maximum iteration!")
         exit()
 
-    epsilon = float(sys.argv[3]) if has_iter else float(sys.argv[2])
+    # ALGORITHM
 
-    # Perform inner join
-    dict_1 = convert(data_1)
-    dict_2 = convert(data_2)
-    dict_joined = {k: dict_1[k] + dict_2[k] for k in dict_1 if k in dict_2}
+    # Variables
+    curr_iter = 0
+    max_diff = 1
+    dim = df.shape[1]
+    indices, centroids = init_centroids_pp(K, df)
 
-    # Sort in ascending order
-    dict_sorted = dict(sorted(dict_joined.items()))
+    print(inds_to_str(indices))
 
-    # k-means ++
-
-    # Choose one center uniformly at random among the data points.
-    np.random.seed(0)
-    rand_center_key = np.random.choice(list(dict_sorted.keys()))
-    rand_center = dict_joined[rand_center_key]
-    chosen_point_keys = [rand_center_key]
-    chosen_points = [rand_center]
-    del dict_sorted[rand_center_key]  # Since chosen, remove from choice pool
-
-    # Repeat Steps 2 and 3 until k centers have been chosen
-    while len(chosen_points) < k:
-        # For each data point x not chosen yet, compute D(x), the distance between x and the nearest center that has already been chosen.
-        dist = {}
-        # Loop over every data point
-        for key in dict_sorted:
-            current_point = dict_sorted[key]
-            dist[key] = euclid_dist(current_point, chosen_points[0])
-            # Search for D(x) with nearest center that has already been chosen
-            for point in chosen_points:
-                inter_dist = euclid_dist(current_point, point)
-                if inter_dist < dist[key]:
-                    dist[key] = inter_dist
-
-        # Calculate probability list
-        dist_sum = sum(dist.values())
-        p_x = []
-        for value in dist.values():
-            proportion = value / dist_sum
-            p_x.append(proportion)
-
-        # Choose one new data point at random as a new center, using a weighted probability distri-
-        # bution where a point x is chosen with probability proportional to P(x1)
-        rand_center_key = np.random.choice(list(dict_sorted.keys()), p=p_x)
-        rand_center = dict_sorted[rand_center_key]
-        chosen_points.append(rand_center)
-        chosen_point_keys.append(rand_center_key)
-        del dict_sorted[rand_center_key]
-
-    # https://bobbyhadz.com/blog/python-print-list-separated-by-commas
-    print(",".join(str(int(item)) for item in chosen_point_keys))
-
-    # RArray to pass to C function
-    arr_sorted = sorted(dict_joined.values())
-
-    # Now that the initial centers have been chosen, proceed using standard k-means clustering.
-    r = len(arr_sorted)
+    arr_sorted = df.values.tolist()
     c = len(arr_sorted[0])
-    final_centroids = mykmeanssp.fit(arr_sorted, chosen_points, r, c, k, iter, epsilon)
+    chosen_points = centroids.values.tolist()
+    final_centroids = mykmeanssp.fit(arr_sorted, chosen_points, N, c, K, max_iter, epsilon)
 
     for centroid in final_centroids:
         rounded = [round(value, 4) for value in centroid]
