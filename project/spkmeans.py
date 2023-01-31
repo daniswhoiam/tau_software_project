@@ -69,7 +69,7 @@ def jacobi_eigenvalue(A, tol=1e-5, max_iter=100):
         # For tolerance breaking condition
         off_A_new = np.sum(np.abs(A - np.diag(np.diag(A))) ** 2)
 
-        if off_A - off_A_new <= tol or m == max_iter:
+        if off_A - off_A_new <= tol:
             break
 
     return np.diag(A), V
