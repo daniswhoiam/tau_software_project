@@ -35,8 +35,9 @@ def jacobi_eigenvalue(A, tol=1e-5, max_iter=100):
     n = A.shape[0]
     V = np.identity(n)
 
+    # Maximum iteration condition
     for m in range(max_iter):
-        # A[i,j]
+        # Max Offdiagonal Absolute value
         max_offdiag = 0
         i, j = 0, 0
         for p in range(n):
@@ -45,6 +46,7 @@ def jacobi_eigenvalue(A, tol=1e-5, max_iter=100):
                     max_offdiag = abs(A[p, q])
                     i, j = p, q
 
+        # Numbers for Rotation matrix
         theta = (A[j, j] - A[i, i]) / (2 * A[i, j])
         t = 1 / (abs(theta) + math.sqrt(theta**2 + 1))
         if theta < 0:
@@ -52,21 +54,26 @@ def jacobi_eigenvalue(A, tol=1e-5, max_iter=100):
         c = 1 / (math.sqrt(t**2 + 1))
         s = t * c
 
+        # Rotation matrix
         P = np.identity(n)
         P[i, i], P[j, j] = c, c
         P[i, j], P[j, i] = -s, s
 
+        # For tolerance breaking condition
         off_A = np.sum(np.abs(A - np.diag(np.diag(A))) ** 2)
 
+        # Rotation
         A = P.T @ A @ P
         V = V @ P
 
+        # For tolerance breaking condition
         off_A_new = np.sum(np.abs(A - np.diag(np.diag(A))) ** 2)
 
         if off_A - off_A_new <= tol or m == max_iter:
             break
 
     return np.diag(A), V
+
 
 if __name__ == "__main__":
 
@@ -103,6 +110,7 @@ if __name__ == "__main__":
 
     # Make Weight Adjusted Matrix
     wadjm = make_wadjm(matrix, N)
+    print(wadjm)
 
     # Make Diagonal Degree Matrix
     diagdem = make_diagdem(wadjm, N)
@@ -115,5 +123,4 @@ if __name__ == "__main__":
     eigenvalues = jacobi_result[0]
     eigenvectors = jacobi_result[1]
 
-    print(eigenvalues)
-    print(eigenvectors)
+    
