@@ -64,6 +64,30 @@ double **make_diagdem(double **wadjm, int N)
   return D;
 }
 
+double **subtract_matrices(double **mat1, double **mat2, int N)
+{
+  /* Counters */
+  int i = 0, j = 0;
+
+  /* Creating result matrix */
+  double **res = malloc(N * sizeof(double *));
+  for (i = 0; i < N; i++)
+  {
+    res[i] = malloc(N * sizeof(double));
+  }
+
+  /* Subtraction */
+  for (i = 0; i < N; i++)
+  {
+    for (j = 0; j < N; j++)
+    {
+      res[i][j] = mat1[i][j] - mat2[i][j];
+    }
+  }
+
+  return res;
+}
+
 void print_matrix(double **matrix, int N)
 {
   int i, j;
@@ -93,7 +117,7 @@ int main(int argc, char **argv)
   int i = 0, j = 0;
 
   /* Matrices */
-  double **wadjm, **diagdem;
+  double **wadjm, **diagdem, **laplace;
 
   /* READING INPUT START */
   if (argc != 3)
@@ -168,6 +192,10 @@ int main(int argc, char **argv)
   wadjm = make_wadjm(data, r, c);
 
   diagdem = make_diagdem(wadjm, r);
+
+  laplace = subtract_matrices(diagdem, wadjm, r);
+
+  print_matrix(laplace, r);
 
   return 0;
 }
