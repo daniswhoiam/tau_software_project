@@ -177,7 +177,7 @@ double *diagonalize_matrix(double **matrix, int N)
   return res;
 }
 
-double *jacobi_eigenvalue(double **A, int N, double **eigenvectors)
+double *jacobi_eigenvalue(double **A, int N, double ***eigenvectors)
 {
   int i, j, k, p, q;
   double max_offdiag, theta, t, c, s, off_A, off_A_new;
@@ -231,7 +231,7 @@ double *jacobi_eigenvalue(double **A, int N, double **eigenvectors)
 
     A = multiply_matrices(multiply_matrices(transpose_matrix(P, N), A, N), P, N);
 
-    eigenvectors = multiply_matrices(eigenvectors, P, N);
+    *eigenvectors = multiply_matrices(*eigenvectors, P, N);
 
     off_A_new = off(A, N);
 
@@ -250,7 +250,7 @@ void print_matrix(double **matrix, int N)
   {
     for (j = 0; j < N; j++)
     {
-      printf("%.3f\t", matrix[i][j]);
+      printf("%.6E\t", matrix[i][j]);
     }
     printf("\n");
   }
@@ -286,7 +286,7 @@ int main(int argc, char **argv)
   }
 
   goal = argv[1];
-  printf("%s", goal);
+  printf("%s\n", goal);
   filename = argv[2];
   textfile = fopen(filename, "r");
   if (textfile == NULL)
@@ -368,9 +368,12 @@ int main(int argc, char **argv)
   }
 
   eigenvalues = malloc(r * sizeof(double));
-  eigenvalues = jacobi_eigenvalue(laplace, r, eigenvectors);
+  eigenvalues = jacobi_eigenvalue(laplace, r, &eigenvectors);
 
-  print_matrix(eigenvectors, r);
+  for (i = 0; i < r; i++)
+  {
+    printf("%E, ", eigenvalues[i]);
+  }
 
   free(eigenvectors);
   free(eigenvalues);
