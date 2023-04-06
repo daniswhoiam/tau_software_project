@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include "spkmeans.h"
 
 #define MAX_ITER 100
 #define TOL 1e-5
@@ -241,6 +242,14 @@ double *jacobi_eigenvalue(double **A, int N, double ***eigenvectors)
 
   eigenvalues = diagonalize_matrix(A, N);
   return eigenvalues;
+}
+
+void rotate(double **a, double **p, int k, int l)
+{
+}
+
+double *jacobi(double **A, double ***eigenvectors)
+{
 }
 
 void print_matrix(double **matrix, int N)
