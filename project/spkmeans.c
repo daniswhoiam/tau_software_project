@@ -252,19 +252,6 @@ double *jacobi(double **A, double ***eigenvectors)
 {
 }
 
-void print_matrix(double **matrix, int N)
-{
-  int i, j;
-  for (i = 0; i < N; i++)
-  {
-    for (j = 0; j < N; j++)
-    {
-      printf("%.6E\t", matrix[i][j]);
-    }
-    printf("\n");
-  }
-}
-
 int main(int argc, char **argv)
 {
   /* Arguments */

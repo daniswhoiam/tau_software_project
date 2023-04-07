@@ -1,5 +1,18 @@
 #include <math.h>
 
+void print_matrix(double **matrix, int N)
+{
+  int i, j;
+  for (i = 0; i < N; i++)
+  {
+    for (j = 0; j < N; j++)
+    {
+      printf("%.6E\t", matrix[i][j]);
+    }
+    printf("\n");
+  }
+}
+
 int *maxElem(double **A, int N)
 {
   int i, j, k, l;
@@ -23,4 +36,64 @@ int *maxElem(double **A, int N)
   maxIndices[1] = l;
 
   return maxIndices;
+}
+
+void rotate(double **A, double **P, int k, int l, int N)
+{
+  double aDiff, t, phi, c, s, tau, temp;
+  int i;
+
+  aDiff = A[l][l] - A[k][k];
+
+  if (fabs(A[k][l]) < fabs(aDiff) * 1.0E-36)
+  {
+    t = A[k][l] / aDiff;
+  }
+  else
+  {
+    phi = aDiff / (2.0 * A[k][l]);
+    t = 1.0 / (fabs(phi) + sqrt(pow(phi, 2.0) + 1.0));
+    if (phi < 0.0)
+    {
+      t = -t;
+    }
+  }
+
+  c = 1.0 / sqrt(pow(t, 2.0) + 1.0);
+  s = t * c;
+  tau = s / (1.0 + c);
+
+  temp = A[k][l];
+  A[k][l] = 0.0;
+  A[k][k] = A[k][k] - t * temp;
+  A[l][l] = A[l][l] + t * temp;
+
+  // Case of i < k
+  for (i = 0; i < k; i++)
+  {
+    temp = A[i][k];
+    A[i][k] = temp - s * (A[i][l] + tau * temp);
+    A[i][l] = A[i][l] + s * (temp - tau * A[i][l]);
+  }
+  // Case of k < i < l
+  for (i = k + 1; i < l; i++)
+  {
+    temp = A[k][i];
+    A[k][i] = temp - s * (A[i][l] + tau * A[k][i]);
+    A[i][l] = A[i][l] + s * (temp - tau * A[i][l]);
+  }
+  // Case of i > l
+  for (i = l + 1; i < N; i++)
+  {
+    temp = A[k][i];
+    A[k][i] = temp - s * (A[l][i] + tau * temp);
+    A[l][i] = A[l][i] + s * (temp - tau * A[l][i]);
+  }
+  // Update transformation matrix
+  for (i = 0; i < N; i++)
+  {
+    temp = P[i][k];
+    P[i][k] = temp - s * (P[i][l] + tau * P[i][k]);
+    P[i][l] = P[i][l] + s * (temp - tau * P[i][l]);
+  }
 }
