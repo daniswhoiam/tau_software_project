@@ -165,19 +165,6 @@ double off(double **matrix, int N)
   return res;
 }
 
-double *diagonalize_matrix(double **matrix, int N)
-{
-  int i;
-  double *res = malloc(N * sizeof(double));
-
-  for (i = 0; i < N; i++)
-  {
-    res[i] = matrix[i][i];
-  }
-
-  return res;
-}
-
 double *jacobi_eigenvalue(double **A, int N, double ***eigenvectors)
 {
   int i, j, k, p, q;
@@ -242,14 +229,6 @@ double *jacobi_eigenvalue(double **A, int N, double ***eigenvectors)
 
   eigenvalues = diagonalize_matrix(A, N);
   return eigenvalues;
-}
-
-void rotate(double **a, double **p, int k, int l)
-{
-}
-
-double *jacobi(double **A, double ***eigenvectors)
-{
 }
 
 int main(int argc, char **argv)

@@ -13,6 +13,48 @@ void print_matrix(double **matrix, int N)
   }
 }
 
+double *diagonalize_matrix(double **matrix, int N)
+{
+  int i;
+  double *res = malloc(N * sizeof(double));
+
+  for (i = 0; i < N; i++)
+  {
+    res[i] = matrix[i][i];
+  }
+
+  return res;
+}
+
+double **identity_matrix(int N)
+{
+  double **i_m;
+  int i, j;
+
+  i_m = malloc(N * sizeof(double *));
+  for (i = 0; i < N; i++)
+  {
+    i_m[i] = malloc(N * sizeof(double));
+  }
+
+  for (i = 0; i < N; i++)
+  {
+    for (j = 0; j < N; j++)
+    {
+      if (i == j)
+      {
+        i_m[i][j] = 1.0;
+      }
+      else
+      {
+        i_m[i][j] = 0.0;
+      }
+    }
+  }
+
+  return i_m;
+}
+
 int *maxElem(double **A, int N)
 {
   int i, j, k, l;
@@ -96,4 +138,33 @@ void rotate(double **A, double **P, int k, int l, int N)
     P[i][k] = temp - s * (P[i][l] + tau * P[i][k]);
     P[i][l] = P[i][l] + s * (temp - tau * P[i][l]);
   }
+}
+
+double *jacobi(double **A, double ***eigenvectors, int N, int maxRot, double tol)
+{
+  int i, k, l;
+  int *maxCoords;
+  double **P;
+  double aMax;
+
+  maxRot = 5 * pow(N, 2.0);
+  P = identity_matrix(N);
+
+  for (i = 0; i < maxRot; i++)
+  {
+    maxCoords = maxElem(A, N);
+    k = maxCoords[0];
+    l = maxCoords[1];
+    aMax = A[k][l];
+    if (aMax < tol)
+    {
+      *eigenvectors = P;
+      return diagonalize_matrix(A, N);
+    }
+    else
+    {
+      rotate(A, P, k, l, N);
+    }
+  }
+  printf("Jacobi method did not converge.");
 }
