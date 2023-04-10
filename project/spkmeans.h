@@ -90,6 +90,31 @@ double **make_diagdem(double **wadjm, int N)
   return D;
 }
 
+double **subtract_matrices(double **mat1, double **mat2, int N)
+{
+  /* Counters */
+  int i = 0, j = 0;
+
+  /* Creating result matrix */
+  double **res = malloc(N * sizeof(double *));
+  for (i = 0; i < N; i++)
+  {
+    res[i] = malloc(N * sizeof(double));
+  }
+
+  /* Subtraction */
+  for (i = 0; i < N; i++)
+  {
+    for (j = 0; j < N; j++)
+    {
+      res[i][j] = mat1[i][j] - mat2[i][j];
+    }
+  }
+
+  return res;
+}
+
+
 double **identity_matrix(int N)
 {
   double **i_m;

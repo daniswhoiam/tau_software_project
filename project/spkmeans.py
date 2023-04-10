@@ -201,6 +201,7 @@ if __name__ == "__main__":
     
     # Make Laplacian
     laplac = np.subtract(diagdem, wadjm)
+    print(laplac)
     
     # Eigenvalues and eigenvectors
     # CAREFUL: CHANGES ORIGINAL MATRIX
@@ -217,3 +218,9 @@ if __name__ == "__main__":
         matrix = matrix.tolist()
         diagdem = myspkmeanssp.ddg(matrix, N)
         print(diagdem)
+
+    if (goal == "gl"):
+        diagdem = diagdem.tolist()
+        wadjm = wadjm.tolist()
+        laplac = myspkmeanssp.gl(diagdem, wadjm, N)
+        print(laplac)
