@@ -195,18 +195,20 @@ if __name__ == "__main__":
 
     # Make Weight Adjusted Matrix
     wadjm = make_wadjm(matrix, N)
-
+    
     # Make Diagonal Degree Matrix
     diagdem = make_diagdem(wadjm, N)
-
+    
     # Make Laplacian
     laplac = np.subtract(diagdem, wadjm)
-
+    
     # Eigenvalues and eigenvectors
-    jacobi_result = jacobi(matrix)
-    eigenvalues = jacobi_result[0]
-    eigenvectors = jacobi_result[1]
-
+    # CAREFUL: CHANGES ORIGINAL MATRIX
+    # jacobi_result = jacobi(matrix)
+    # eigenvalues = jacobi_result[0]
+    # eigenvectors = jacobi_result[1]
+    
     if (goal == "wam"):
+        matrix = matrix.tolist()
         wadjm = myspkmeanssp.wam(matrix, N, dim)
         print(wadjm)

@@ -18,7 +18,7 @@ static PyObject *py_wam(PyObject *self, PyObject *args)
   double *input_data;
   double **arr_input_data, **arr_output_data;
 
-  if (!PyArg_ParseTuple(args, "0ii", &data, &N, &dim))
+  if (!PyArg_ParseTuple(args, "Oii", &data, &N, &dim))
     return NULL;
 
   input_data = calloc(N * dim, sizeof(double));
@@ -59,7 +59,7 @@ static PyObject *py_wam(PyObject *self, PyObject *args)
 
   if (!output_data)
     return NULL;
-  return Py_BuildValue("0", output_data);
+  return Py_BuildValue("O", output_data);
 }
 
 /*

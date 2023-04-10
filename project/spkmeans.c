@@ -290,6 +290,7 @@ int main(int argc, char **argv)
   /* READING INPUT END */
 
   wadjm = make_wadjm(data, r, c);
+  print_matrix(wadjm, r);
 
   diagdem = make_diagdem(wadjm, r);
 

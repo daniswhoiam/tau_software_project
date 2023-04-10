@@ -1,27 +1,20 @@
 {
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python: Current File",
-      "type": "python",
-      "request": "launch",
-      "program": "${file}",
-      "console": "integratedTerminal",
-      "justMyCode": true,
-      "args": ["1", "spk", "input_2.txt"]
-    },
-    {
-      "name": "C/C++: g++ build and debug active file",
+      "name": "(gdb) Launch",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${fileDirname}/${fileBasenameNoExtension}",
-      "args": ["spk", "input_2.txt"],
+      "program": "${fileDirname}/spkmeans",
+      "args": ["spl", "input_1.txt"],
       "stopAtEntry": false,
-      "cwd": "${workspaceFolder}",
+      "cwd": "${fileDirname}",
       "environment": [],
-      "externalConsole": false,
+      "externalConsole": true,
       "MIMode": "gdb",
-      "miDebuggerPath": "/usr/bin/gdb",
       "setupCommands": [
         {
           "description": "Enable pretty-printing for gdb",
@@ -29,7 +22,33 @@
           "ignoreFailures": true
         }
       ],
-      "preLaunchTask": "C/C++: gcc-11 build active file"
+      "preLaunchTask": "tasks",
+      "miDebuggerPath": "C:\\MinGW\\bin\\gdb.exe"
+    },
+    {
+      "name": "Python: Current File",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "cwd": "${fileDirname}",
+      "console": "integratedTerminal",
+      "args": ["3", "wam", "input_4.txt"]
+    },
+    {
+      "name": "(gdb) Attach",
+      "type": "cppdbg",
+      "request": "attach",
+      "program": "${fileDirname}\\spkmeans" /* My python3 path */,
+      "processId": "${command:pickProcess}",
+      "MIMode": "gdb",
+      "miDebuggerPath": "C:\\MinGW\\bin\\gdb.exe",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
     }
   ]
 }
