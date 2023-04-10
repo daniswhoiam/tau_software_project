@@ -62,6 +62,34 @@ double **make_wadjm(double **data, int N, int dim)
   return W;
 }
 
+double **make_diagdem(double **wadjm, int N)
+{
+  /* Counters */
+  int i = 0, j = 0;
+
+  /* Create matrix */
+  double **D = malloc(N * sizeof(double *));
+  for (i = 0; i < N; i++)
+  {
+    D[i] = malloc(N * sizeof(double));
+  }
+
+  /* Fill up matrix */
+  for (i = 0; i < N; i++)
+  {
+    for (j = 0; j < N; j++)
+    {
+      D[i][i] += wadjm[i][j];
+      if (i != j)
+      {
+        D[i][j] = 0.0;
+      }
+    }
+  }
+
+  return D;
+}
+
 double **identity_matrix(int N)
 {
   double **i_m;

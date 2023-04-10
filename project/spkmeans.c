@@ -6,34 +6,6 @@
 #define MAX_ITER 100
 #define TOL 1e-5
 
-double **make_diagdem(double **wadjm, int N)
-{
-  /* Counters */
-  int i = 0, j = 0;
-
-  /* Create matrix */
-  double **D = malloc(N * sizeof(double *));
-  for (i = 0; i < N; i++)
-  {
-    D[i] = malloc(N * sizeof(double));
-  }
-
-  /* Fill up matrix */
-  for (i = 0; i < N; i++)
-  {
-    for (j = 0; j < N; j++)
-    {
-      D[i][i] += wadjm[i][j];
-      if (i != j)
-      {
-        D[i][j] = 0.0;
-      }
-    }
-  }
-
-  return D;
-}
-
 double **subtract_matrices(double **mat1, double **mat2, int N)
 {
   /* Counters */

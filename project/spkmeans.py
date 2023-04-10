@@ -212,3 +212,8 @@ if __name__ == "__main__":
         matrix = matrix.tolist()
         wadjm = myspkmeanssp.wam(matrix, N, dim)
         print(wadjm)
+
+    if (goal == "ddg"):
+        matrix = matrix.tolist()
+        diagdem = myspkmeanssp.ddg(matrix, N)
+        print(diagdem)
