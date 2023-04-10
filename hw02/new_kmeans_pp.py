@@ -95,7 +95,8 @@ if __name__ == "__main__":
 
     if max_iter <= 1 or max_iter >= 1000:
         print("Invalid maximum iteration!")
-        exit()
+        exit()    print(len(sys.argv))
+
 
     # ALGORITHM
 

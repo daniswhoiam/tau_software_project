@@ -2,6 +2,7 @@ import sys
 import math
 import numpy as np
 import pandas as pd
+import myspkmeanssp
 
 
 def sq_eq_dist(point1, point2):
@@ -77,7 +78,8 @@ def rotate_matrix(A, i, j):
         # Max Offdiagonal Absolute value
         i, j = calc_max_offdiag(A)
 
-        # Numbers for Rotation matrix
+        # Numbers for Rotation matriprint(eigenvalues)
+    print(eigenvectors)x
         theta = (A[j, j] - A[i, i]) / (2 * A[i, j])
         t = 1 / (abs(theta) + math.sqrt(theta**2 + 1))
         if theta < 0.0:
@@ -169,6 +171,7 @@ if __name__ == "__main__":
             file_path = sys.argv[3]
             matrix = np.loadtxt(file_path)
             N = len(matrix)
+            dim = matrix.shape[1]
             # Check k
             if k >= N:
                 print("Invalid number of clusters!")
@@ -185,6 +188,7 @@ if __name__ == "__main__":
             file_path = sys.argv[3]
             matrix = np.loadtxt(file_path)
             N = len(matrix)
+            dim = matrix.shape[1]
         except:
             print("An error has occured!")
             exit()
@@ -202,5 +206,7 @@ if __name__ == "__main__":
     jacobi_result = jacobi(matrix)
     eigenvalues = jacobi_result[0]
     eigenvectors = jacobi_result[1]
-    print(eigenvalues)
-    print(eigenvectors)
+
+    if (goal == "wam"):
+        wadjm = myspkmeanssp.wam(matrix, N, dim)
+        print(wadjm)

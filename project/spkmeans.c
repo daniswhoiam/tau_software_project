@@ -6,40 +6,6 @@
 #define MAX_ITER 100
 #define TOL 1e-5
 
-double **make_wadjm(double **data, int N, int dim)
-{
-  /* Counters */
-  int i = 0, j = 0, k = 0;
-
-  /* Creating array / matrix */
-  double **W = malloc(N * sizeof(double *));
-  for (i = 0; i < N; i++)
-  {
-    W[i] = malloc(N * sizeof(double));
-  }
-
-  /* Loop over input matrix */
-  for (i = 0; i < N; i++)
-  {
-    for (j = 0; j < N; j++)
-    {
-      if (i != j)
-      {
-        /* Calculate distance */
-        double dist = 0.0;
-        for (k = 0; k < dim; k++)
-        {
-          dist += (data[i][k] - data[j][k]) * (data[i][k] - data[j][k]);
-        }
-        /* Save Weighted Adjacency */
-        W[i][j] = exp(-(dist / 2));
-      }
-    }
-  }
-
-  return W;
-}
-
 double **make_diagdem(double **wadjm, int N)
 {
   /* Counters */
