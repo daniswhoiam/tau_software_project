@@ -201,8 +201,7 @@ if __name__ == "__main__":
     
     # Make Laplacian
     laplac = np.subtract(diagdem, wadjm)
-    print(laplac)
-    
+
     # Eigenvalues and eigenvectors
     # CAREFUL: CHANGES ORIGINAL MATRIX
     # jacobi_result = jacobi(matrix)
@@ -224,3 +223,11 @@ if __name__ == "__main__":
         wadjm = wadjm.tolist()
         laplac = myspkmeanssp.gl(diagdem, wadjm, N)
         print(laplac)
+
+    if (goal == "jacobi"):
+        matrix = matrix.tolist()
+        jacobi_result = myspkmeanssp.jacobi(matrix, N, dim, 100, 1.0e-6)
+        eigenvalues = jacobi_result[0]
+        eigenvectors = jacobi_result[1]
+        print(eigenvalues)
+        print(eigenvectors)

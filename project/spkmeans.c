@@ -238,7 +238,6 @@ int main(int argc, char **argv)
   /* READING INPUT END */
 
   wadjm = make_wadjm(data, r, c);
-  print_matrix(wadjm, r);
 
   diagdem = make_diagdem(wadjm, r);
 
@@ -258,8 +257,10 @@ int main(int argc, char **argv)
   }
 
   eigenvalues = malloc(r * sizeof(double));
-  eigenvalues = jacobi_eigenvalue(laplace, r, &eigenvectors);
+  eigenvalues = jacobi(data, &eigenvectors, r, 100, 1E-6);
 
+
+  print_matrix(eigenvectors, r);
   for (i = 0; i < r; i++)
   {
     printf("%E, ", eigenvalues[i]);

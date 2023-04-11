@@ -184,11 +184,73 @@ static PyObject *py_gl(PyObject *self, PyObject *args)
   return Py_BuildValue("O", py_output_matrix);
 }
 
-/*
 static PyObject *py_jacobi(PyObject *self, PyObject *args)
 {
+  PyObject *py_input_matrix, *py_arr_one, *py_arr_two, *py_double_arr, *py_double;
+  int N, dim, i, j, maxRot;
+  double tol;
+  double *input_data, *eigenvalues;
+  double **arr_input_data, **wadjm, **diagdem, **laplac, **eigenvectors;
+
+  if (!PyArg_ParseTuple(args, "Oiiid", &py_input_matrix, &N, &dim, &maxRot, &tol)) 
+    return NULL;
+
+  input_data = calloc(N * dim, sizeof(double));
+  arr_input_data = calloc(N, sizeof(double *));
+
+  for (i = 0; i < N; i++)
+  {
+    arr_input_data[i] = input_data + i * dim;
+  }
+  for (i = 0; i < N; i++)
+  {
+    PyObject *array = PyList_GetItem(py_input_matrix, i);
+    for (j = 0; j < dim; j++)
+    {
+      PyObject *item = PyList_GetItem(array, j);
+      double num = PyFloat_AsDouble(item);
+      arr_input_data[i][j] = num;
+    }
+  }
+
+  wadjm = calloc(N*N, sizeof(double));
+  diagdem = calloc(N*N, sizeof(double));
+  laplac = calloc(N*N, sizeof(double));
+  wadjm = make_wadjm(arr_input_data, N, dim);
+  diagdem = make_diagdem(wadjm, N);
+  laplac = subtract_matrices(diagdem, wadjm, N);
+
+  eigenvalues = calloc(N, sizeof(double));
+  eigenvectors = calloc(N * N, sizeof(double));
+  eigenvalues = jacobi(laplac, &eigenvectors, N, maxRot, tol);
+
+  py_arr_one = PyList_New(N);
+  for (i = 0; i < N; i++)
+  {
+    py_double = PyFloat_FromDouble(eigenvalues[i]);
+    PyList_SetItem(py_arr_one, i, py_double);
+  }
+  py_arr_two = PyList_New(2);
+  PyList_SetItem(py_arr_two, 0, py_arr_one);
+  
+  py_arr_one = PyList_New(N);
+  for (i = 0; i < N; i++)
+  {
+    py_double_arr = PyList_New(N);
+    for (j = 0; j < N; j++)
+    {
+      py_double = PyFloat_FromDouble(eigenvectors[i][j]);
+      PyList_SetItem(py_double_arr, j, py_double);
+    }
+    PyList_SetItem(py_arr_one, i, py_double_arr);
+  }
+  PyList_SetItem(py_arr_two, 1, py_arr_one);
+
+  if (!py_arr_two)
+    return NULL;
+  return Py_BuildValue("O", py_arr_two);
 }
-*/
+
 
 // Define KMeansMethods[] PyMethodDef
 static PyMethodDef SPKMeansMethods[] = {
@@ -196,7 +258,7 @@ static PyMethodDef SPKMeansMethods[] = {
     {"wam", (PyCFunction)py_wam, METH_VARARGS, PyDoc_STR("wam function")},
     {"ddg", (PyCFunction)py_ddg, METH_VARARGS, PyDoc_STR("ddg function")},
     {"gl", (PyCFunction)py_gl, METH_VARARGS, PyDoc_STR("gl function")},
-    //{"jacobi", (PyCFunction)py_jacobi, METH_VARARGS, PyDoc_STR("jacobi function")},
+    {"jacobi", (PyCFunction)py_jacobi, METH_VARARGS, PyDoc_STR("jacobi function")},
     {NULL, NULL, 0, NULL}};
 
 // Define spkmeansmodule PyModuleDef
