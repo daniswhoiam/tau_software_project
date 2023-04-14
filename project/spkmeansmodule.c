@@ -6,10 +6,82 @@
 #include "spkmeans.c"
 
 // Define py_x PyObjects
-/*
 static PyObject *py_spk(PyObject *self, PyObject *args)
 {
-} */
+  PyObject *data, *centroids;
+  int K, iter, r, c;
+  double epsilon;
+  int i, j, k;
+  double *input_data;
+  double **arr_input_data;
+  double *input_centroids;
+  double **arr_input_centroids;
+  double **final_centroids;
+  PyObject *py_final_centroids;
+  PyObject *py_double_arr;
+  PyObject *py_double;
+
+  if (!PyArg_ParseTuple(args, "OOiiiid", &data, &centroids, &r, &c, &K, &iter, &epsilon))
+    return NULL;
+
+  input_data = calloc(r * c, sizeof(double));
+  arr_input_data = calloc(r, sizeof(double *));
+
+  for (k = 0; k < r; k++)
+  {
+    arr_input_data[k] = input_data + k * c;
+  }
+  for (i = 0; i < r; i++)
+  {
+    PyObject *array = PyList_GetItem(data, i);
+    for (j = 0; j < c; j++)
+    {
+      PyObject *item = PyList_GetItem(array, j);
+      double num = PyFloat_AsDouble(item);
+      arr_input_data[i][j] = num;
+    }
+  }
+
+  input_centroids = calloc(K * c, sizeof(double));
+  arr_input_centroids = calloc(K, sizeof(double *));
+  for (k = 0; k < K; k++)
+  {
+    arr_input_centroids[k] = input_centroids + k * c;
+  }
+  for (i = 0; i < K; i++)
+  {
+    PyObject *array = PyList_GetItem(centroids, i);
+    for (j = 0; j < c; j++)
+    {
+      PyObject *item = PyList_GetItem(array, j);
+      double num = PyFloat_AsDouble(item);
+      arr_input_centroids[i][j] = num;
+    }
+  }
+
+  final_centroids = calloc(K, sizeof(double *));
+  final_centroids = fit(arr_input_data, arr_input_centroids, r, c, K, iter, epsilon);
+
+  py_final_centroids = PyList_New(K);
+  for (i = 0; i < K; i++)
+  {
+    py_double_arr = PyList_New(c);
+    for (j = 0; j < c; j++)
+    {
+      py_double = PyFloat_FromDouble(final_centroids[i][j]);
+      PyList_SetItem(py_double_arr, j, py_double);
+    }
+    PyList_SetItem(py_final_centroids, i, py_double_arr);
+  }
+
+  free(final_centroids);
+  free(input_centroids);
+  free(input_data);
+
+  if (!py_final_centroids)
+    return NULL;
+  return Py_BuildValue("O", py_final_centroids);
+}
 
 static PyObject *py_wam(PyObject *self, PyObject *args)
 {
@@ -61,7 +133,6 @@ static PyObject *py_wam(PyObject *self, PyObject *args)
     return NULL;
   return Py_BuildValue("O", py_output_data);
 }
-
 
 static PyObject *py_ddg(PyObject *self, PyObject *args)
 {
@@ -121,12 +192,12 @@ static PyObject *py_gl(PyObject *self, PyObject *args)
   double *input_arr_one, *input_arr_two;
   double **input_matrix_one, **input_matrix_two, **output_matrix;
 
-  if (!PyArg_ParseTuple(args, "OOi", &matrix_one, &matrix_two, &N)) 
+  if (!PyArg_ParseTuple(args, "OOi", &matrix_one, &matrix_two, &N))
     return NULL;
 
   input_arr_one = calloc(N * N, sizeof(double));
   input_matrix_one = calloc(N, sizeof(double *));
-  
+
   for (i = 0; i < N; i++)
   {
     input_matrix_one[i] = input_arr_one + i * N;
@@ -192,7 +263,7 @@ static PyObject *py_jacobi(PyObject *self, PyObject *args)
   double *input_data, *eigenvalues;
   double **arr_input_data, **wadjm, **diagdem, **laplac, **eigenvectors;
 
-  if (!PyArg_ParseTuple(args, "Oiiid", &py_input_matrix, &N, &dim, &maxRot, &tol)) 
+  if (!PyArg_ParseTuple(args, "Oiiid", &py_input_matrix, &N, &dim, &maxRot, &tol))
     return NULL;
 
   input_data = calloc(N * dim, sizeof(double));
@@ -213,9 +284,9 @@ static PyObject *py_jacobi(PyObject *self, PyObject *args)
     }
   }
 
-  wadjm = calloc(N*N, sizeof(double));
-  diagdem = calloc(N*N, sizeof(double));
-  laplac = calloc(N*N, sizeof(double));
+  wadjm = calloc(N * N, sizeof(double));
+  diagdem = calloc(N * N, sizeof(double));
+  laplac = calloc(N * N, sizeof(double));
   wadjm = make_wadjm(arr_input_data, N, dim);
   diagdem = make_diagdem(wadjm, N);
   laplac = subtract_matrices(diagdem, wadjm, N);
@@ -232,7 +303,7 @@ static PyObject *py_jacobi(PyObject *self, PyObject *args)
   }
   py_arr_two = PyList_New(2);
   PyList_SetItem(py_arr_two, 0, py_arr_one);
-  
+
   py_arr_one = PyList_New(N);
   for (i = 0; i < N; i++)
   {
@@ -251,10 +322,9 @@ static PyObject *py_jacobi(PyObject *self, PyObject *args)
   return Py_BuildValue("O", py_arr_two);
 }
 
-
 // Define KMeansMethods[] PyMethodDef
 static PyMethodDef SPKMeansMethods[] = {
-    //{"spk", (PyCFunction)py_spk, METH_VARARGS, PyDoc_STR("spk function")},
+    {"spk", (PyCFunction)py_spk, METH_VARARGS, PyDoc_STR("spk function")},
     {"wam", (PyCFunction)py_wam, METH_VARARGS, PyDoc_STR("wam function")},
     {"ddg", (PyCFunction)py_ddg, METH_VARARGS, PyDoc_STR("ddg function")},
     {"gl", (PyCFunction)py_gl, METH_VARARGS, PyDoc_STR("gl function")},

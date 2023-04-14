@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include "spkmeans.h"
 
+// gcc -g test.c -o test `pkg-config --cflags --libs check`
+
 START_TEST(test_max_elem)
 {
   int *maxIndices;
@@ -136,6 +138,17 @@ START_TEST(test_jacobi)
   ck_assert_double_eq(eigenvalues[3], 2.0);
 }
 
+START_TEST(test_max_eigengap)
+{
+  int result;
+  double eigenvalues[7] = {0.0, 2.0, 0.2, -0.2, -30.0, 200.0, -3000.0};
+
+  result = max_eigengap(eigenvalues, 7);
+
+  ck_assert_int_eq(result, 6);
+}
+END_TEST
+
 Suite *spkmeans(void)
 {
   Suite *s;
@@ -148,6 +161,7 @@ Suite *spkmeans(void)
   tcase_add_test(tc_core, test_max_elem);
   tcase_add_test(tc_core, test_rotate);
   tcase_add_test(tc_core, test_jacobi);
+  tcase_add_test(tc_core, test_max_eigengap);
   suite_add_tcase(s, tc_core);
 
   return s;
