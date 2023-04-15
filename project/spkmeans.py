@@ -166,13 +166,38 @@ def jacobi(a, tol=1.0e-6):  # Jacobi method
 
 
 def max_eigengap(eigenvalues):
-    eigenvalues.sort()
+    np.sort(eigenvalues)
+    print(eigenvalues)
     eigengaps = np.empty(len(eigenvalues) - 1)
-    #CHANGE
-    for i in range(eigenvalues) - 1:
+    for i in range(0, len(eigenvalues) - 1):
         eigengaps[i] = abs(eigenvalues[i] - eigenvalues[i + 1])
     return np.argmax(eigenvalues)
 
+def eigengap_heuristic(matrix, N):
+    working_matrix = np.copy(matrix)
+
+    # Make Weight Adjusted Matrix
+    #wadjm = make_wadjm(working_matrix, N)
+
+    # Make Diagonal Degree Matrix
+    #diagdem = make_diagdem(wadjm, N)
+
+    # Make Laplacian
+    #laplac = np.subtract(diagdem, wadjm)
+
+    # Eigenvalues and eigenvectors
+    # CAREFUL: CHANGES ORIGINAL MATRIX
+    jacobi_result = jacobi(working_matrix)
+    eigenvalues = jacobi_result[0]
+
+    result = max_eigengap(eigenvalues)
+
+    return result
+
+def print_matrix(matrix, N):
+    for i in range(0, N):
+        print_list = list(np.around(np.array(matrix[i]),4))
+        print(', '.join(map(str, print_list)))
 
 if __name__ == "__main__":
 
@@ -200,50 +225,45 @@ if __name__ == "__main__":
 
     elif len(sys.argv) == 3:
         try:
-            goal = sys.argv[2]
-            file_path = sys.argv[3]
+            goal = sys.argv[1]
+            file_path = sys.argv[2]
             matrix = np.loadtxt(file_path)
             N = len(matrix)
             dim = matrix.shape[1]
+            k = eigengap_heuristic(matrix, N)
         except:
             print("An error has occured!")
             exit()
 
-    # Make Weight Adjusted Matrix
-    wadjm = make_wadjm(matrix, N)
+    matrix = matrix.tolist()
 
-    # Make Diagonal Degree Matrix
-    diagdem = make_diagdem(wadjm, N)
+    if goal == "spk":
+        wadjm = myspkmeanssp.wam(matrix, N, dim)
+        diagdem = myspkmeanssp.ddg(wadjm, N)
+        laplac = myspkmeanssp.gl(diagdem, wadjm, N)
+        jacobi_result = myspkmeanssp.jacobi(matrix, N, dim, 100, 1.0e-6)
+        eigenvectors = jacobi_result[1]
+        spk_result = myspkmeanssp.fit
 
-    # Make Laplacian
-    laplac = np.subtract(diagdem, wadjm)
-
-    # Eigenvalues and eigenvectors
-    # CAREFUL: CHANGES ORIGINAL MATRIX
-    # jacobi_result = jacobi(matrix)
-    # eigenvalues = jacobi_result[0]
-    # eigenvectors = jacobi_result[1]
 
     if goal == "wam":
-        matrix = matrix.tolist()
         wadjm = myspkmeanssp.wam(matrix, N, dim)
-        print(wadjm)
+        print_matrix(wadjm, N)
 
     if goal == "ddg":
-        matrix = matrix.tolist()
         diagdem = myspkmeanssp.ddg(matrix, N)
-        print(diagdem)
+        print_matrix(diagdem, N)
 
     if goal == "gl":
-        diagdem = diagdem.tolist()
-        wadjm = wadjm.tolist()
+        wadjm = myspkmeanssp.wam(matrix, N, dim)
+        diagdem = myspkmeanssp.ddg(wadjm, N)
         laplac = myspkmeanssp.gl(diagdem, wadjm, N)
-        print(laplac)
+        print_matrix(laplac, N)
 
     if goal == "jacobi":
-        matrix = matrix.tolist()
         jacobi_result = myspkmeanssp.jacobi(matrix, N, dim, 100, 1.0e-6)
         eigenvalues = jacobi_result[0]
         eigenvectors = jacobi_result[1]
-        print(eigenvalues)
-        print(eigenvectors)
+        print_matrix(eigenvalues, 0)
+        # as columns???
+        print_matrix(eigenvectors, N)

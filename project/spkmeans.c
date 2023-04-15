@@ -257,7 +257,7 @@ int main(int argc, char **argv)
   }
 
   eigenvalues = malloc(r * sizeof(double));
-  eigenvalues = jacobi(data, &eigenvectors, r, 100, 1E-6);
+  eigenvalues = jacobi(laplace, &eigenvectors, r, 100, 1E-6);
 
 
   print_matrix(eigenvectors, r);
