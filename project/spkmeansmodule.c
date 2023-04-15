@@ -77,7 +77,6 @@ static PyObject *py_spk(PyObject *self, PyObject *args)
   free(final_centroids);
   free(input_centroids);
   free(input_data);
-
   if (!py_final_centroids)
     return NULL;
   return Py_BuildValue("O", py_final_centroids);
@@ -127,8 +126,8 @@ static PyObject *py_wam(PyObject *self, PyObject *args)
   }
 
   free(input_data);
+  free(arr_input_data);
   free(arr_output_data);
-
   if (!py_output_data)
     return NULL;
   return Py_BuildValue("O", py_output_data);

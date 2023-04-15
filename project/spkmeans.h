@@ -18,7 +18,7 @@ void print_matrix(double **matrix, int N)
 double *diagonalize_matrix(double **matrix, int N)
 {
   int i;
-  double *res = malloc(N * sizeof(double));
+  double *res = calloc(N, sizeof(double));
 
   for (i = 0; i < N; i++)
   {
@@ -34,10 +34,10 @@ double **make_wadjm(double **data, int N, int dim)
   int i = 0, j = 0, k = 0;
 
   /* Creating array / matrix */
-  double **W = malloc(N * sizeof(double *));
+  double **W = calloc(N, sizeof(double *));
   for (i = 0; i < N; i++)
   {
-    W[i] = malloc(N * sizeof(double));
+    W[i] = calloc(N, sizeof(double));
   }
 
   /* Loop over input matrix */
@@ -68,10 +68,10 @@ double **make_diagdem(double **wadjm, int N)
   int i = 0, j = 0;
 
   /* Create matrix */
-  double **D = malloc(N * sizeof(double *));
+  double **D = calloc(N, sizeof(double *));
   for (i = 0; i < N; i++)
   {
-    D[i] = malloc(N * sizeof(double));
+    D[i] = calloc(N, sizeof(double));
   }
 
   /* Fill up matrix */
@@ -96,10 +96,10 @@ double **subtract_matrices(double **mat1, double **mat2, int N)
   int i = 0, j = 0;
 
   /* Creating result matrix */
-  double **res = malloc(N * sizeof(double *));
+  double **res = calloc(N, sizeof(double *));
   for (i = 0; i < N; i++)
   {
-    res[i] = malloc(N * sizeof(double));
+    res[i] = calloc(N, sizeof(double));
   }
 
   /* Subtraction */
@@ -119,10 +119,10 @@ double **identity_matrix(int N)
   double **i_m;
   int i, j;
 
-  i_m = malloc(N * sizeof(double *));
+  i_m = calloc(N, sizeof(double *));
   for (i = 0; i < N; i++)
   {
-    i_m[i] = malloc(N * sizeof(double));
+    i_m[i] = calloc(N, sizeof(double));
   }
 
   for (i = 0; i < N; i++)
@@ -319,13 +319,6 @@ double **fit(double **data, double **centroids, int r, int c, int K, int iter, d
 
   /* Calculating Dimensions */
   count = c * r;
-
-  /* Set number of clusters */
-  if (K < 2 || K > (count - 1))
-  {
-    printf("Invalid number of clusters!\n");
-    return NULL;
-  }
 
   /* Set number of iterations */
   if (iter < 2 || iter > 999)
