@@ -32,7 +32,7 @@
       "program": "${file}",
       "cwd": "${fileDirname}",
       "console": "integratedTerminal",
-      "args": ["3", "gl", "input_4.txt"]
+      "args": ["spk", "input_3.txt"]
     },
     {
       "name": "(gdb) Attach",

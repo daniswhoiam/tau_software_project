@@ -4,7 +4,7 @@ import pandas as pd
 import myspkmeanssp
 
 def max_eigengap(eigenvalues):
-    np.sort(eigenvalues)
+    eigenvalues = np.sort(eigenvalues)
     eigengaps = np.empty(len(eigenvalues) - 1)
     for i in range(0, len(eigenvalues) - 1):
         eigengaps[i] = abs(eigenvalues[i] - eigenvalues[i + 1])
@@ -12,9 +12,6 @@ def max_eigengap(eigenvalues):
 
 def eigengap_heuristic(matrix, N, dim):
     matrix = matrix.tolist()
-    #wadjm = myspkmeanssp.wam(matrix, N, dim)
-    #diagdem = myspkmeanssp.ddg(wadjm, N)
-    #laplac = myspkmeanssp.gl(diagdem, wadjm, N)
     jacobi_result = myspkmeanssp.jacobi(matrix, N, dim, 100, 1.0e-6)
     eigenvalues = jacobi_result[0]
     result = max_eigengap(eigenvalues)
@@ -84,7 +81,7 @@ if __name__ == "__main__":
         try:
             goal = sys.argv[1]
             file_path = sys.argv[2]
-            matrix = np.loadtxt(file_path, delimiter = ",")
+            matrix = np.loadtxt(file_path)
             N = len(matrix)
             dim = matrix.shape[1]
             k = eigengap_heuristic(matrix, N, dim)
@@ -102,8 +99,9 @@ if __name__ == "__main__":
         eigenvalues = jacobi_result[0]
         eigenvectors = jacobi_result[1]
         sorted_eigenvectors = [x for _, x in sorted(zip(eigenvalues, eigenvectors))]
-        selected_eigenvectors = sorted_eigenvectors[0:(k-1)]
+        selected_eigenvectors = sorted_eigenvectors[0:k]
         transposed_eigenvectors = np.array(selected_eigenvectors).transpose().tolist()
+        tr_eigenvectors_pd = pd.DataFrame(transposed_eigenvectors)
         indices, centroids = init_centroids(k, pd.DataFrame(transposed_eigenvectors))
         spk_result = myspkmeanssp.spk(transposed_eigenvectors, centroids.values.tolist(), N, len(transposed_eigenvectors[0]), k, 100, 1.0e-6)
         print(', '.join(map(str, indices)))
