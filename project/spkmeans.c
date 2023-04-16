@@ -205,28 +205,28 @@ void rotate(double **A, double **P, int k, int l, int N)
   A[k][k] = A[k][k] - t * temp;
   A[l][l] = A[l][l] + t * temp;
 
-  // Case of i < k
+  /* Case of i < k */
   for (i = 0; i < k; i++)
   {
     temp = A[i][k];
     A[i][k] = temp - s * (A[i][l] + tau * temp);
     A[i][l] = A[i][l] + s * (temp - tau * A[i][l]);
   }
-  // Case of k < i < l
+  /* Case of k < i < l */
   for (i = k + 1; i < l; i++)
   {
     temp = A[k][i];
     A[k][i] = temp - s * (A[i][l] + tau * A[k][i]);
     A[i][l] = A[i][l] + s * (temp - tau * A[i][l]);
   }
-  // Case of i > l
+  /* Case of i > l */
   for (i = l + 1; i < N; i++)
   {
     temp = A[k][i];
     A[k][i] = temp - s * (A[l][i] + tau * temp);
     A[l][i] = A[l][i] + s * (temp - tau * A[l][i]);
   }
-  // Update transformation matrix
+  /* Update transformation matrix */
   for (i = 0; i < N; i++)
   {
     temp = P[i][k];
@@ -262,14 +262,19 @@ double *jacobi(double **A, double ***eigenvectors, int N, int maxRot, double tol
     }
   }
   printf("Jacobi method did not converge.");
+  /* Just to satisfy compiler, will never happen */
+  return diagonalize_matrix(A, N);
 }
 
-// https://stackoverflow.com/questions/36940643/sorting-an-array-of-double-in-c
-static int compare (const void * a, const void * b)
+/* https://stackoverflow.com/questions/36940643/sorting-an-array-of-double-in-c */
+static int compare(const void *a, const void *b)
 {
-  if (*(double*)a > *(double*)b) return 1;
-  else if (*(double*)a < *(double*)b) return -1;
-  else return 0;  
+  if (*(double *)a > *(double *)b)
+    return 1;
+  else if (*(double *)a < *(double *)b)
+    return -1;
+  else
+    return 0;
 }
 
 int max_eigengap(double *eigenvalues, int N)
@@ -278,17 +283,17 @@ int max_eigengap(double *eigenvalues, int N)
   double max;
   double *eigengaps;
 
-  // Sort Ascendingly
+  /* Sort Ascendingly */
   qsort(eigenvalues, N, sizeof(double), compare);
 
-  // Calculate Eigengaps
+  /* Calculate Eigengaps */
   eigengaps = calloc(N - 1, sizeof(double));
   for (i = 0; i < N - 1; i++)
   {
     eigengaps[i] = fabs(eigenvalues[i] - eigenvalues[i + 1]);
   }
 
-  // Determine Argmax
+  /* Determine Argmax */
   result = -1;
   max = 0.0;
   for (i = 0; i < N - 1; i++)
@@ -300,7 +305,7 @@ int max_eigengap(double *eigenvalues, int N)
     }
   }
 
-  return i;
+  return result;
 }
 
 double **fit(double **data, double **centroids, int r, int c, int K, int iter, double epsilon)
@@ -623,7 +628,6 @@ int main(int argc, char **argv)
 
   eigenvalues = malloc(r * sizeof(double));
   eigenvalues = jacobi(laplace, &eigenvectors, r, 100, 1E-6);
-
 
   print_matrix(eigenvectors, r);
   for (i = 0; i < r; i++)

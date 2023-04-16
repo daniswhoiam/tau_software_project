@@ -1,4 +1,2 @@
-all: spkmeans
-
-spkmeans: spkmeans.c
-	gcc -g -ansi -Wall -Wextra -Werror -pedantic-errors spkmeans.c -o spkmeans -lm
+spkmeansmake: spkmeans.c
+		gcc  -ansi -Wall -Wextra -Werror -pedantic-errors -o spkmeans spkmeans.c -lm
