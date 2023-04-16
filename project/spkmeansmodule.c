@@ -258,12 +258,11 @@ static PyObject *py_gl(PyObject *self, PyObject *args)
 static PyObject *py_jacobi(PyObject *self, PyObject *args)
 {
   PyObject *py_input_matrix, *py_arr_one, *py_arr_two, *py_double_arr, *py_double;
-  int N, dim, i, j, maxRot;
-  double tol;
+  int N, dim, i, j;
   double *input_data, *eigenvalues;
   double **arr_input_data, **wadjm, **diagdem, **laplac, **eigenvectors;
 
-  if (!PyArg_ParseTuple(args, "Oiiid", &py_input_matrix, &N, &dim, &maxRot, &tol))
+  if (!PyArg_ParseTuple(args, "Oii", &py_input_matrix, &N, &dim))
     return NULL;
 
   input_data = calloc(N * dim, sizeof(double));
@@ -293,7 +292,7 @@ static PyObject *py_jacobi(PyObject *self, PyObject *args)
 
   eigenvalues = calloc(N, sizeof(double));
   eigenvectors = calloc(N * N, sizeof(double));
-  eigenvalues = jacobi(laplac, &eigenvectors, N, maxRot, tol);
+  eigenvalues = jacobi(laplac, &eigenvectors, N);
 
   py_arr_one = PyList_New(N);
   for (i = 0; i < N; i++)

@@ -13,7 +13,7 @@ double off(double **matrix, int N);
 
 double *diagonalize_matrix(double **matrix, int N);
 
-double *jacobi(double **A, double ***eigenvectors, int N, int maxRot, double tol);
+double *jacobi(double **A, double ***eigenvectors, int N);
 
 double **transpose_matrix(double **matrix, int N);
 

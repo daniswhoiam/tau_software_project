@@ -9,7 +9,7 @@
       "type": "cppdbg",
       "request": "launch",
       "program": "${fileDirname}/spkmeans",
-      "args": ["spl", "input_1.txt"],
+      "args": ["jacobi", "input_3.txt"],
       "stopAtEntry": false,
       "cwd": "${fileDirname}",
       "environment": [],
@@ -23,7 +23,7 @@
         }
       ],
       "preLaunchTask": "tasks",
-      "miDebuggerPath": "C:\\MinGW\\bin\\gdb.exe"
+      "miDebuggerPath": "/usr/bin/gdb"
     },
     {
       "name": "Python: Current File",

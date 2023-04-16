@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 #include "spkmeans.h"
 
 #define MAX_ITER 100
-#define TOL 1e-5
+#define TOL 1e-6
 
 void print_matrix(double **matrix, int N)
 {
@@ -13,7 +14,14 @@ void print_matrix(double **matrix, int N)
   {
     for (j = 0; j < N; j++)
     {
-      printf("%.6E\t", matrix[i][j]);
+      if (j != N - 1)
+      {
+        printf("%.4f, ", matrix[i][j]);
+      }
+      else
+      {
+        printf("%.4f", matrix[i][j]);
+      }
     }
     printf("\n");
   }
@@ -151,7 +159,9 @@ int *maxElem(double **A, int N)
 {
   int i, j, k, l;
   double aMax = 0.0;
-  static int maxIndices[2];
+  int *maxIndices;
+
+  maxIndices = calloc(2, sizeof(int));
 
   k = -1;
   l = -1;
@@ -235,23 +245,22 @@ void rotate(double **A, double **P, int k, int l, int N)
   }
 }
 
-double *jacobi(double **A, double ***eigenvectors, int N, int maxRot, double tol)
+double *jacobi(double **A, double ***eigenvectors, int N)
 {
   int i, k, l;
   int *maxCoords;
   double **P;
   double aMax;
 
-  maxRot = 5 * pow(N, 2.0);
   P = identity_matrix(N);
 
-  for (i = 0; i < maxRot; i++)
+  for (i = 0; i < MAX_ITER; i++)
   {
     maxCoords = maxElem(A, N);
     k = maxCoords[0];
     l = maxCoords[1];
     aMax = A[k][l];
-    if (aMax < tol)
+    if (aMax < TOL)
     {
       *eigenvectors = P;
       return diagonalize_matrix(A, N);
@@ -261,8 +270,6 @@ double *jacobi(double **A, double ***eigenvectors, int N, int maxRot, double tol
       rotate(A, P, k, l, N);
     }
   }
-  printf("Jacobi method did not converge.");
-  /* Just to satisfy compiler, will never happen */
   return diagonalize_matrix(A, N);
 }
 
@@ -545,7 +552,6 @@ int main(int argc, char **argv)
   }
 
   goal = argv[1];
-  printf("%s\n", goal);
   filename = argv[2];
   textfile = fopen(filename, "r");
   if (textfile == NULL)
@@ -573,10 +579,10 @@ int main(int argc, char **argv)
   c = c - 1;
   fclose(textfile);
 
-  data = malloc(r * sizeof(double *));
+  data = calloc(r, sizeof(double *));
   for (i = 0; i < r; i++)
   {
-    data[i] = malloc(c * sizeof(double));
+    data[i] = calloc(c, sizeof(double));
   }
 
   textfile = fopen(filename, "r");
@@ -607,36 +613,65 @@ int main(int argc, char **argv)
 
   /* READING INPUT END */
 
-  wadjm = make_wadjm(data, r, c);
-
-  diagdem = make_diagdem(wadjm, r);
-
-  laplace = subtract_matrices(diagdem, wadjm, r);
-
-  eigenvectors = malloc(r * sizeof(double *));
-  for (i = 0; i < r; i++)
+  if (strcmp(goal, "wam") == 0)
   {
-    eigenvectors[i] = malloc(r * sizeof(double));
+    wadjm = make_wadjm(data, r, c);
+    print_matrix(wadjm, r);
   }
-  for (i = 0; i < r; i++)
+
+  if (strcmp(goal, "ddg") == 0)
   {
-    for (j = 0; j < r; j++)
+    wadjm = make_wadjm(data, r, c);
+    diagdem = make_diagdem(wadjm, r);
+    print_matrix(diagdem, r);
+  }
+
+  if (strcmp(goal, "gl") == 0)
+  {
+    wadjm = make_wadjm(data, r, c);
+    diagdem = make_diagdem(wadjm, r);
+    laplace = subtract_matrices(diagdem, wadjm, r);
+    print_matrix(laplace, r);
+  }
+
+  if (strcmp(goal, "jacobi") == 0)
+  {
+    wadjm = make_wadjm(data, r, c);
+    diagdem = make_diagdem(wadjm, r);
+    laplace = subtract_matrices(diagdem, wadjm, r);
+    eigenvectors = calloc(r, sizeof(double *));
+    for (i = 0; i < r; i++)
     {
-      eigenvectors[i][j] = (i == j) ? 1 : 0;
+      eigenvectors[i] = calloc(r, sizeof(double));
     }
+    for (i = 0; i < r; i++)
+    {
+      for (j = 0; j < r; j++)
+      {
+        eigenvectors[i][j] = (i == j) ? 1.0 : 0.0;
+      }
+    }
+
+    eigenvalues = calloc(r, sizeof(double));
+    eigenvalues = jacobi(laplace, &eigenvectors, r);
+
+    for (i = 0; i < r; i++)
+    {
+      if (i != r - 1)
+      {
+        printf("%.4f, ", eigenvalues[i]);
+      }
+      else
+      {
+        printf("%.4f", eigenvalues[i]);
+      }
+    }
+    printf("\n");
+    print_matrix(eigenvectors, r);
+
+    free(eigenvectors);
+    free(eigenvalues);
   }
-
-  eigenvalues = malloc(r * sizeof(double));
-  eigenvalues = jacobi(laplace, &eigenvectors, r, 100, 1E-6);
-
-  print_matrix(eigenvectors, r);
-  for (i = 0; i < r; i++)
-  {
-    printf("%E, ", eigenvalues[i]);
-  }
-
-  free(eigenvectors);
-  free(eigenvalues);
 
   return 0;
 }

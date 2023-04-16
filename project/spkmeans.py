@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import myspkmeanssp
 
+
 def max_eigengap(eigenvalues):
     eigenvalues = np.sort(eigenvalues)
     eigengaps = np.empty(len(eigenvalues) - 1)
@@ -10,21 +11,25 @@ def max_eigengap(eigenvalues):
         eigengaps[i] = abs(eigenvalues[i] - eigenvalues[i + 1])
     return np.argmax(eigengaps)
 
+
 def eigengap_heuristic(matrix, N, dim):
     matrix = matrix.tolist()
-    jacobi_result = myspkmeanssp.jacobi(matrix, N, dim, 100, 1.0e-6)
+    jacobi_result = myspkmeanssp.jacobi(matrix, N, dim)
     eigenvalues = jacobi_result[0]
     result = max_eigengap(eigenvalues)
 
     return result
 
+
 def print_matrix(matrix, N):
     for i in range(0, N):
-        print_list = list(np.around(np.array(matrix[i]),4))
-        print(', '.join(map(str, print_list)))
+        print_list = list(np.around(np.array(matrix[i]), 4))
+        print(", ".join(map(str, print_list)))
+
 
 def euclid_dist(row, centroid):
     return np.linalg.norm(row - centroid)
+
 
 def init_centroids(K, df):
     indices = np.zeros(K)
@@ -38,7 +43,8 @@ def init_centroids(K, df):
     for k in range(1, K):
         # distances, D(x), holds the distance for each point to its closes centroid
         distances = df.apply(
-            lambda row: min([euclid_dist(row, centroids.iloc[i]) for i in range(centroids.shape[0])]), axis=1)
+            lambda row: min([euclid_dist(row, centroids.iloc[i]) for i in range(centroids.shape[0])]), axis=1
+        )
         sum = np.sum(distances)
         distribution = distances.apply(lambda row: row / sum)
 
@@ -50,6 +56,7 @@ def init_centroids(K, df):
         centroids = pd.concat([centroids, new_centr], ignore_index=True)
 
     return indices, centroids
+
 
 if __name__ == "__main__":
 
@@ -95,7 +102,7 @@ if __name__ == "__main__":
         wadjm = myspkmeanssp.wam(matrix, N, dim)
         diagdem = myspkmeanssp.ddg(wadjm, N)
         laplac = myspkmeanssp.gl(diagdem, wadjm, N)
-        jacobi_result = myspkmeanssp.jacobi(matrix, N, dim, 100, 1.0e-6)
+        jacobi_result = myspkmeanssp.jacobi(matrix, N, dim)
         eigenvalues = jacobi_result[0]
         eigenvectors = jacobi_result[1]
         sorted_eigenvectors = [x for _, x in sorted(zip(eigenvalues, eigenvectors))]
@@ -103,17 +110,19 @@ if __name__ == "__main__":
         transposed_eigenvectors = np.array(selected_eigenvectors).transpose().tolist()
         tr_eigenvectors_pd = pd.DataFrame(transposed_eigenvectors)
         indices, centroids = init_centroids(k, pd.DataFrame(transposed_eigenvectors))
-        spk_result = myspkmeanssp.spk(transposed_eigenvectors, centroids.values.tolist(), N, len(transposed_eigenvectors[0]), k, 100, 1.0e-6)
-        print(', '.join(map(str, indices)))
+        spk_result = myspkmeanssp.spk(
+            transposed_eigenvectors, centroids.values.tolist(), N, len(transposed_eigenvectors[0]), k, 100, 1.0e-6
+        )
+        print(", ".join(map(str, indices)))
         print_matrix(spk_result, k)
-
 
     if goal == "wam":
         wadjm = myspkmeanssp.wam(matrix, N, dim)
         print_matrix(wadjm, N)
 
     if goal == "ddg":
-        diagdem = myspkmeanssp.ddg(matrix, N)
+        wadjm = myspkmeanssp.wam(matrix, N, dim)
+        diagdem = myspkmeanssp.ddg(wadjm, N)
         print_matrix(diagdem, N)
 
     if goal == "gl":
@@ -123,9 +132,9 @@ if __name__ == "__main__":
         print_matrix(laplac, N)
 
     if goal == "jacobi":
-        jacobi_result = myspkmeanssp.jacobi(matrix, N, dim, 100, 1.0e-6)
+        jacobi_result = myspkmeanssp.jacobi(matrix, N, dim)
         eigenvalues = jacobi_result[0]
         eigenvectors = jacobi_result[1]
-        print_matrix(eigenvalues, 0)
-        # as columns???
+        print_list = list(np.around(np.array(eigenvalues), 4))
+        print(", ".join(map(str, print_list)))
         print_matrix(eigenvectors, N)
