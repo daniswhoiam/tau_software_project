@@ -9,9 +9,15 @@ void print_matrix(double **matrix, int N);
 
 void rotate(double **A, double **P, int k, int l, int N);
 
+double off(double **matrix, int N);
+
 double *diagonalize_matrix(double **matrix, int N);
 
 double *jacobi(double **A, double ***eigenvectors, int N, int maxRot, double tol);
+
+double **transpose_matrix(double **matrix, int N);
+
+double **multiply_matrices(double **mat1, double **mat2, int N);
 
 double **make_wadjm(double **data, int N, int dim);
 
@@ -22,9 +28,6 @@ double **subtract_matrices(double **mat1, double **mat2, int N);
 double **identity_matrix(int N);
 
 double **fit(double **data, double **centroids, int r, int c, int K, int iter, double epsilon);
-
-// https://stackoverflow.com/questions/36940643/sorting-an-array-of-double-in-c
-static int compare (const void * a, const void * b);
 
 int max_eigengap(double *eigenvalues, int N);
 
