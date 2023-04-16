@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
-#include "spkmeans.c"
+#include "spkmeans.h"
 
 // Define py_x PyObjects
 static PyObject *py_spk(PyObject *self, PyObject *args)
